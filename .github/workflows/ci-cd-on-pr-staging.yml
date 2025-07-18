@@ -1,0 +1,22 @@
+name: CI-CD Chapter-CI
+
+on:
+  pull_request:
+    branches: [ "staging" ]  # Se ejecuta en pull requests hacia master
+    paths:
+      - 'Chapter-CI/**'  # Solo se ejecuta cuando hay cambios en Chapter-CI
+jobs:  
+  validate-env:
+    environment: staging
+    runs-on: ubuntu-latest    
+    steps:
+    - shell: bash
+      env:
+        MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
+        MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      run: |
+        echo "repo variable $MONGO_USERNAME"
+        echo "repo variable $MONGO_PASSWORD"
+      
+
+
