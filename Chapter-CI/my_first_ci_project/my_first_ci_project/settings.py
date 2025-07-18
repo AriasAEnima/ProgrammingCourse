@@ -15,6 +15,7 @@ from mongoengine import connect
 from dotenv import load_dotenv
 import os
 
+
 # Cargar archivo .env solo si existe (para desarrollo local)
 env_path = Path('.') / '.env'
 if env_path.exists():

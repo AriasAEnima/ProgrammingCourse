@@ -2,7 +2,7 @@ name: CI-CD Chapter-CI
 
 on:
   pull_request:
-    branches: [ "staging" ]  # Se ejecuta en pull requests hacia master
+    branches: [ "staging" ]  # Se ejecuta en pull requests hacia staging
     paths:
       - 'Chapter-CI/**'  # Solo se ejecuta cuando hay cambios en Chapter-CI
 jobs:  
@@ -17,7 +17,7 @@ jobs:
       run: |
         echo "repo variable $MONGO_USERNAME"
         echo "repo variable $MONGO_PASSWORD"
-        
+
       
 
 
