@@ -1,0 +1,277 @@
+===============================================================================
+🎭 GUIÓN COMPLETO - SESSION 5: SISTEMAS DISTRIBUIDOS (45 minutos)
+===============================================================================
+
+📋 PREREQUISITOS ANTES DE EMPEZAR:
+- cd Chapter-Threads/Session5-DistributedSystems
+- pip install -r requirements.txt
+- Verificar que Projects funciona: cd ../Projects && python manage.py check
+
+===============================================================================
+⏰ MINUTOS 0-5: INTRODUCCIÓN Y CONEXIÓN (5 min)
+===============================================================================
+
+🎤 QUÉ DECIR:
+"¡Hola! Hemos estado viendo concurrencia y paralelismo EN una máquina...
+Threading, Multiprocessing, Async, IPC. Pero ¿qué pasa cuando necesitamos 
+MÚLTIPLES máquinas trabajando juntas? Eso son los Sistemas Distribuidos."
+
+"Piensen en Netflix, WhatsApp, Google... miles de servidores coordinándose."
+
+🖥️ QUÉ MOSTRAR (en slides o pizarra):
+   Local (Sessions 1-5)    |  Distribuido (Session 6)
+   ----------------------  |  -----------------------
+   Memoria compartida      |  Solo comunicación por red
+   Fallos = proceso crash  |  Fallos parciales
+   Tiempo sincronizado     |  Cada máquina su reloj
+   threading.Lock          |  Distributed locks
+
+🎤 QUÉ DECIR:
+"La evolución natural es:
+- Queue           → HTTP requests
+- Pipe            → REST APIs  
+- Shared Memory   → Distributed databases
+- threading.Lock  → Distributed locks"
+
+"Pero aquí aparecen 3 desafíos nuevos:
+1. Sin memoria compartida → Todo por red
+2. Fallos parciales → Una máquina puede morir, otras siguen
+3. Sin tiempo global → Difícil coordinar eventos"
+
+===============================================================================
+⏰ MINUTOS 5-15: CONCEPTOS FUNDAMENTALES (10 min)
+===============================================================================
+
+🎤 QUÉ DECIR:
+"Vamos a ver esto en acción. Tenemos nuestro servidor de imágenes 4K del 
+proyecto anterior. ¿Cómo lo convertimos en un sistema distribuido?"
+
+"En lugar de 1 servidor, vamos a tener 3 servidores trabajando juntos."
+
+🖥️ QUÉ MOSTRAR:
+[Dibujar en pizarra o mostrar]
+
+ANTES (proyecto anterior):
+   Cliente → [Servidor 8000] → Respuesta
+
+AHORA (Session 5):
+           ┌─ [Servidor 8001] ──┐
+   Cliente → [Load Balancer]  ── [Servidor 8002] → Respuesta  
+           └─ [Servidor 8003] ──┘
+
+🎤 QUÉ DECIR:
+"Los conceptos clave que vamos a ver son:
+
+1. LOAD BALANCING: Distribuir requests entre servidores
+2. FAULT TOLERANCE: Sistema sigue funcionando aunque fallen componentes  
+3. HEALTH MONITORING: Supervisar estado de servidores
+4. THREADING PARA HTTP: Requests paralelos a múltiples servidores"
+
+"¿Preguntas hasta aquí? ¿Todos entienden la diferencia entre local y distribuido?"
+
+===============================================================================
+⏰ MINUTOS 15-30: DEMO PRÁCTICA PROGRESIVA (15 min)
+===============================================================================
+
+🎤 QUÉ DECIR:
+"¡Manos a la obra! Vamos a distribuir nuestro servidor de imágenes paso a paso."
+
+--- MINUTO 15-18: Setup de servidores (3 min) ---
+
+🖥️ QUÉ EJECUTAR:
+python start_servers.py
+
+🎤 QUÉ DECIR MIENTRAS CARGA:
+"Este script levanta 3 servidores Django automáticamente en puertos 8001, 8002, 8003.
+En producción, estos estarían en máquinas físicas separadas."
+
+[Esperar a que aparezca "✅ Listo para demos!"]
+
+🎤 QUÉ DECIR:
+"¡Perfecto! Tenemos 3 servidores funcionando. Ahora vamos a crear un 
+load balancer para distribuir la carga."
+
+--- MINUTO 18-25: Demo Load Balancer (7 min) ---
+
+🖥️ QUÉ EJECUTAR:
+python distributor.py
+
+🎤 QUÉ DECIR:
+"Primero veamos distribución básica con Round Robin."
+
+🖥️ EN EL MENU: Elegir opción 1
+
+🎤 QUÉ DECIR MIENTRAS CORRE:
+"Fíjense que rota entre servidores: 8001 → 8002 → 8003 → 8001...
+Esto es Round Robin: distribución equitativa."
+
+[Cuando termine el demo 1]
+
+🎤 QUÉ DECIR:
+"Ahora probemos requests concurrentes usando Threading."
+
+🖥️ EN EL MENU: Elegir opción 2
+
+🎤 QUÉ DECIR MIENTRAS CORRE:
+"¡Miren esto! ThreadPoolExecutor envía requests paralelos. 
+Esto es threading aplicado a sistemas distribuidos."
+
+[Señalar el throughput: "XXX requests/segundo"]
+
+🎤 QUÉ DECIR:
+"¿Ven que threading sigue siendo útil en sistemas distribuidos?
+Lo usamos para hacer requests HTTP paralelos."
+
+--- MINUTO 25-30: Demo Fault Tolerance (5 min) ---
+
+🎤 QUÉ DECIR:
+"Ahora viene lo interesante: ¿qué pasa si falla un servidor?"
+
+🖥️ EN EL MENU: Elegir opción 3
+
+[Mientras ejecuta, abrir otra terminal]
+🖥️ QUÉ EJECUTAR EN OTRA TERMINAL:
+ps aux | grep "manage.py runserver" | head -1 | awk '{print $2}' | xargs kill
+
+🎤 QUÉ DECIR:
+"Acabo de 'matar' uno de los servidores para simular un fallo.
+¡Pero el sistema sigue funcionando! Esto es tolerancia a fallos."
+
+🖥️ EN EL MENU: Elegir opción 4 (estadísticas)
+
+🎤 QUÉ DECIR:
+"Las estadísticas muestran que algunos requests fallaron, pero el sistema
+continúa operando. En producción, siempre hay fallos parciales."
+
+🖥️ EN EL MENU: Elegir opción 0 (salir)
+
+===============================================================================
+⏰ MINUTOS 30-40: EJERCICIO HANDS-ON (10 min)
+===============================================================================
+
+🎤 QUÉ DECIR:
+"¡Ahora les toca a ustedes! Vamos a implementar un health monitor distribuido.
+Van a usar threading para verificar servidores en paralelo."
+
+🖥️ QUÉ EJECUTAR:
+python health_monitor.py
+
+🎤 QUÉ DECIR:
+"Tienen 4 ejercicios progresivos:
+
+1. Monitor secuencial (2 min) - Básico
+2. Monitor paralelo con threading (3 min) - Más interesante  
+3. Retry logic + Circuit breaker (4 min) - Avanzado
+4. Monitoreo continuo (1 min) - Opcional
+
+Empiecen por el ejercicio 1. Lean las pistas, implementen el código.
+¡Pregunten si tienen dudas!"
+
+--- MINUTOS 30-32: Ejercicio 1 ---
+🎤 CIRCULAR ENTRE ESTUDIANTES:
+"¿Cómo van? Recuerden usar simple_health_check() y update_server_status()."
+"El loop es: for server in SERVERS:"
+
+--- MINUTOS 32-35: Ejercicio 2 ---  
+🎤 QUÉ DECIR:
+"Pasen al ejercicio 2. Aquí usan ThreadPoolExecutor.
+¿Recuerdan cómo se usa? from concurrent.futures import ThreadPoolExecutor"
+
+🎤 AYUDAR SI SE ATORAN:
+"La estructura es:
+with ThreadPoolExecutor(max_workers=5) as executor:
+    futures = [executor.submit(función, server) for server in SERVERS]"
+
+--- MINUTOS 35-39: Ejercicio 3 ---
+🎤 QUÉ DECIR:
+"Los que terminaron el 2, pasen al 3. Implementen retry logic.
+Si un servidor falla 3 veces seguidas, márquenlo como 'CIRCUIT_OPEN'."
+
+--- MINUTO 39-40: Ejercicio 4 ---
+🎤 QUÉ DECIR:
+"El 4 es opcional. Es monitoreo continuo con threading."
+
+===============================================================================
+⏰ MINUTOS 40-45: WRAP-UP Y SIGUIENTES PASOS (5 min)
+===============================================================================
+
+🎤 QUÉ DECIR:
+"¡Excelente trabajo! Vamos a cerrar con los conceptos clave."
+
+🖥️ QUÉ MOSTRAR (pizarra o slides):
+
+EVOLUCIÓN COMPLETA:
+   Session 1:   Threading/Concurrency      →  Una máquina
+   Session 2:   Multiprocessing/Parallelism →  Una máquina  
+   Session 3:   Async/await               →  Una máquina
+   Session 4:   IPC (Pipes/Queues)       →  Una máquina
+   Session 5:   Sistemas Distribuidos    →  MÚLTIPLES máquinas
+
+🎤 QUÉ DECIR:
+"¿Qué aprendimos hoy?
+
+✅ LOAD BALANCING: Distribuir carga entre servidores
+✅ THREADING PARA HTTP: Requests paralelos siguen siendo útiles
+✅ FAULT TOLERANCE: Sistema robusto ante fallos  
+✅ HEALTH MONITORING: Supervisión automática
+
+¿Ven cómo threading sigue siendo relevante en sistemas distribuidos?
+Lo usamos para hacer requests HTTP en paralelo."
+
+🎤 QUÉ DECIR:
+"SIGUIENTES PASOS en el mundo real:
+
+- Message Queues: Redis, RabbitMQ para comunicación asíncrona
+- Container Orchestration: Docker + Kubernetes para escalar
+- Microservices: Arquitectura de servicios independientes  
+- Monitoring: Prometheus + Grafana para observabilidad"
+
+🎤 QUÉ DECIR:
+"PREGUNTA FINAL: ¿Cuál es la diferencia más importante entre 
+programación local y sistemas distribuidos?"
+
+[Esperar respuestas: "Fallos parciales", "Sin memoria compartida", etc.]
+
+🎤 QUÉ DECIR:
+"¡Exacto! En local, si algo falla, TODO falla. En distribuido, 
+partes pueden fallar pero el sistema sigue funcionando."
+
+"¿Preguntas? ¿Algo que no quedó claro?"
+
+===============================================================================
+🧹 CLEANUP AL FINAL:
+===============================================================================
+
+🖥️ QUÉ EJECUTAR (si los procesos siguen corriendo):
+ps aux | grep "manage.py runserver" | awk '{print $2}' | xargs kill
+
+🎤 QUÉ DECIR:
+"¡Excelente sesión! Tienen todo el código en Session5-DistributedSystems
+para experimentar más. ¡Ahora van a trabajar en su proyecto durante la semana!"
+
+===============================================================================
+📝 NOTAS PARA EL INSTRUCTOR:
+===============================================================================
+
+TIMING CRÍTICO:
+- Demo práctica: MAX 15 minutos (no extenderse)
+- Ejercicios: Asegurar que al menos hagan ejercicio 1 y 2
+- Si van lentos: Saltar ejercicio 3 y 4
+
+ENGAGEMENT TIPS:
+- Preguntar constantemente: "¿Qué creen que pasa si...?"
+- Conectar con conocimiento previo: "Esto es como threading, pero..."
+- Matar servidor durante demo para mostrar fallos en vivo
+
+TROUBLESHOOTING:
+- Si distributor.py no encuentra servidores: Verificar puertos con lsof -i :8001
+- Si students se atoran en ejercicios: Mostrar las soluciones comentadas
+- Si no hay tiempo: Ejecutar demo_complete.py en lugar de demos manuales
+
+CONCEPTOS CLAVE A ENFATIZAR:
+1. Threading sigue siendo útil (para HTTP requests)
+2. Fallos parciales son la nueva realidad  
+3. Load balancing es esencial
+4. Monitoring es crítico
+
+=============================================================================== 
