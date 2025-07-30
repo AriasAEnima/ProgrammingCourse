@@ -1,2 +1,5 @@
 Django==4.2.7
-psutil==5.9.6 
+psutil==5.9.6
+Pillow>=9.0.0
+opencv-python>=4.5.0
+numpy>=1.21.0 

@@ -16,6 +16,13 @@ ANTES: GET /api/image/4k/ → imagen estática
 DESPUÉS: POST /api/process/ → imagen + 3 filtros aplicados en paralelo
 ```
 
+### **🖼️ IMÁGENES REALES DISPONIBLES:**
+```
+static/images/sample_4k.jpg      ← 368KB imagen 4K real
+static/images/misurina-sunset.jpg ← 368KB imagen paisaje real
+```
+**El sistema alterna entre estas 2 imágenes reales para testing de performance.**
+
 ---
 
 ## ⏰ **AGENDA DEL DÍA**
@@ -97,7 +104,7 @@ En `image_api/filters.py`:
 
 #### **2. API endpoints (20 min)**
 En `image_api/views.py`:
-- ✅ Crear endpoint `POST /api/process/`
+- ✅ Crear endpoint `POST /api/process-batch`
 - ✅ Manejar upload de archivos
 - ✅ Integrar con `ImageProcessor`
 - ✅ Retornar resultados JSON
