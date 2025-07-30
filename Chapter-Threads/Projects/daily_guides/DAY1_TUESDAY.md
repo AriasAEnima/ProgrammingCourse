@@ -104,7 +104,7 @@ En `image_api/filters.py`:
 
 #### **2. API endpoints (20 min)**
 En `image_api/views.py`:
-- ✅ Crear endpoint `POST /api/process/`
+- ✅ Crear endpoint `POST /api/process-batch`
 - ✅ Manejar upload de archivos
 - ✅ Integrar con `ImageProcessor`
 - ✅ Retornar resultados JSON
