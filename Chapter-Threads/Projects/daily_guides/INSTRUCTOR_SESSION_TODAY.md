@@ -1,288 +1,253 @@
-# 🔥 **GUÍA INSTRUCTOR - 45 MINUTOS - THREADING + IMAGE PROCESSING**
+# 🔥 **GUÍA INSTRUCTOR - DÍA 2 - MULTIPROCESSING + CPU-BOUND**
 
-**Fecha**: Martes - Día 1 del Proyecto  
-**Objetivo**: Demostrar ventajas de Threading vs Sequential en procesamiento de imágenes  
-**Material**: Servidor Django + Filtros PIL/OpenCV **YA FUNCIONANDO**
+**Fecha**: Martes - Día 2 del Proyecto  
+**Objetivo**: Threading vs Multiprocessing - ¿Cuándo usar cada uno?  
+**Material**: Servidor Django + Filtros **THREADING YA FUNCIONANDO** (ayer)
 
 ---
 
-## ⏰ **CRONOGRAMA DETALLADO (45 MIN)**
+## 🎯 **CONTEXTO: DÍA 2 DE 4**
 
-### **📚 MINUTOS 0-10: SETUP + CONTEXTO**
+### **✅ AYER (Día 1) vieron:**
+- Threading con ThreadPoolExecutor
+- Filtros I/O-bound (resize, blur, brightness)
+- Threading funcionó PERFECTO para leer archivos
 
-#### **Minuto 0-3: Bienvenida y revisión**
+### **🔥 HOY (Día 2) veremos:**
+- Multiprocessing con ProcessPoolExecutor  
+- Filtros CPU-bound (sharpen, edge detection)
+- ¿Cuándo Threading NO es suficiente?
+
+---
+
+## ⏰ **CRONOGRAMA (45 MIN)**
+
+### **📚 MINUTOS 0-10: REVIEW + SETUP**
+
+#### **Minuto 0-3: Review día anterior**
 ```
-"¡Buenos días! Ayer vimos sistemas distribuidos.
-Hoy empezamos un proyecto de 4 días: procesar imágenes con concurrencia.
+"¡Buenos días! Ayer implementamos Threading para filtros I/O-bound.
+¿Recuerdan por qué Threading funcionó bien para resize, blur, brightness?
 
-El objetivo: ¿Cuándo usar Threading vs Multiprocessing?
-Respuesta corta: Threading = I/O, Multiprocessing = CPU"
+RESPUESTA: Porque leer archivos del disco es I/O-bound.
+El GIL se libera durante I/O, permitiendo concurrencia real."
 ```
 
-#### **Minuto 3-7: Verificar setup**
+#### **Minuto 3-7: Plantear problema de hoy**
+```
+"PREGUNTA: ¿Qué pasa si tenemos filtros que saturan la CPU?
+Ejemplo: Edge detection, sharpen, complex mathematical operations.
+
+¿Threading seguirá siendo efectivo?
+¡Vamos a descubrirlo!"
+```
+
+#### **Minuto 7-10: Verificar estado actual**
 ```bash
-# Verificar que todos tengan el servidor funcionando
+# Verificar servidor funcionando
 curl http://localhost:8000/api/health/
 
-# Verificar imágenes disponibles
-ls static/images/
-
-# Mostrar que static/processed/ está vacío (o casi)
-ls static/processed/
-```
-
-#### **Minuto 7-10: Explicar problema**
-```
-"Tenemos un servidor que sirve imágenes estáticas.
-Queremos aplicar filtros: resize, blur, brightness, sharpen, edge detection.
-
-PREGUNTA: ¿Qué es más lento: leer un archivo o procesarlo?
-RESPUESTA: Depende del filtro.
-
-Hoy: filtros I/O-bound (resize, blur, brightness)
-Mañana: filtros CPU-bound (sharpen, edge detection)"
+# Test threading como baseline (lo que ya saben)
+curl -X POST http://localhost:8000/api/process-batch/threading/ \
+  -H "Content-Type: application/json" \
+  -d '{"filters": ["resize", "blur"], "filter_params": {"resize": {"width": 800, "height": 600}, "blur": {"radius": 3.0}}}'
 ```
 
 ---
 
-### **🔧 MINUTOS 10-25: DEMO PRÁCTICA**
+### **🔧 MINUTOS 10-25: DEMOS CPU-BOUND**
 
-#### **Minuto 10-13: Procesamiento SECUENCIAL**
+#### **Minuto 10-13: Demo filtro CPU-intensivo con Threading**
 ```bash
-# DEMO 1: Secuencial (baseline)
-curl -X POST http://localhost:8000/api/process-batch/sequential/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["resize", "blur"], 
-    "filter_params": {
-      "resize": {"width": 800, "height": 600},
-      "blur": {"radius": 3.0}
-    }
-  }'
-```
-
-**Explicar mientras corre:**
-```
-"Sequential significa: procesar imagen 1, luego imagen 2, luego imagen 3.
-Si cada imagen toma 1 segundo, 3 imágenes = 3 segundos total.
-¿Podemos mejorar esto?"
-```
-
-**Ver resultado:**
-```bash
-ls static/processed/
-```
-
-#### **Minuto 13-18: Procesamiento con THREADING**
-```bash
-# DEMO 2: Threading
+# DEMO 1: Threading con filtro pesado (sharpen)
 curl -X POST http://localhost:8000/api/process-batch/threading/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["resize", "blur", "brightness"], 
-    "filter_params": {
-      "resize": {"width": 800, "height": 600},
-      "blur": {"radius": 2.0},
-      "brightness": {"factor": 1.2}
-    }
-  }'
+  -d '{"filters": ["sharpen"], "filter_params": {"sharpen": {"intensity": 3}}}'
 ```
 
 **Explicar mientras corre:**
 ```
-"Threading significa: procesar 3 imágenes EN PARALELO.
-¿Por qué funciona? Porque el filtro 'resize' lee del disco (I/O-bound).
-Mientras Thread 1 lee, Thread 2 puede ejecutar, Thread 3 también."
+"El filtro 'sharpen' usa OpenCV y NumPy para operaciones matriciales.
+Es CPU-intensivo: muchas multiplicaciones y convoluciones.
+¿Notaron que tarda más? ¿Threading ayuda tanto como ayer?"
 ```
 
-#### **Minuto 18-22: COMPARACIÓN DIRECTA**
+#### **Minuto 13-18: Demo Multiprocessing con mismo filtro**
 ```bash
-# DEMO 3: Comparación directa
-curl -X POST http://localhost:8000/api/process-batch/compare/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["resize", "blur"], 
-    "filter_params": {
-      "resize": {"width": 800, "height": 600},
-      "blur": {"radius": 3.0}
-    }
-  }'
-```
-
-**Analizar resultados juntos:**
-```
-"Miremos los resultados:
-- Sequential time: X.X segundos
-- Threading time: Y.Y segundos  
-- Speedup: Z.Zx
-
-¿Por qué Threading es más rápido?
-¿Cuándo Threading NO sería más rápido?"
-```
-
-#### **Minuto 22-25: Mostrar filtros pesados**
-```bash
-# DEMO 4: CPU-bound (preparando para mañana)
+# DEMO 2: Multiprocessing con filtro pesado 
 curl -X POST http://localhost:8000/api/process-batch/multiprocessing/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["sharpen"], 
-    "filter_params": {
-      "sharpen": {"intensity": 3}
-    }
-  }'
+  -d '{"filters": ["sharpen"], "filter_params": {"sharpen": {"intensity": 3}}}'
 ```
 
 **Explicar:**
 ```
-"Este filtro 'sharpen' es CPU-intensivo. Usa OpenCV y NumPy.
-¿Notaron que tardó más? Mañana veremos por qué Multiprocessing 
-es mejor para estos casos."
+"Multiprocessing = procesos separados, no threads.
+Cada proceso tiene su propia memoria, su propio GIL.
+Para CPU-bound tasks, esto permite VERDADERO paralelismo."
+```
+
+#### **Minuto 18-22: Comparación directa TODOS los métodos**
+```bash
+# DEMO 3: Comparación completa (¡EL MOMENTO CLAVE!)
+curl -X POST http://localhost:8000/api/process-batch/compare-all/ \
+  -H "Content-Type: application/json" \
+  -d '{"filters": ["resize", "sharpen"], "filter_params": {"resize": {"width": 800, "height": 600}, "sharpen": {"intensity": 2}}}'
+```
+
+**Analizar resultados:**
+```
+"¡Miremos los resultados!
+- Sequential: X.X segundos
+- Threading: Y.Y segundos  
+- Multiprocessing: Z.Z segundos
+
+¿Qué observan? Para resize (I/O), ¿quién gana?
+Para sharpen (CPU), ¿quién gana?"
+```
+
+#### **Minuto 22-25: Demo extremo - Edge Detection**
+```bash
+# DEMO 4: Filtro MUY CPU-intensivo
+curl -X POST http://localhost:8000/api/process-batch/multiprocessing/ \
+  -H "Content-Type: application/json" \
+  -d '{"filters": ["edges"], "filter_params": {"edges": {"threshold1": 50, "threshold2": 150}}}'
+```
+
+**Explicar:**
+```
+"Edge detection usa algoritmos de Canny en OpenCV.
+Es EXTREMADAMENTE CPU-intensivo.
+Aquí Multiprocessing debería brillar."
 ```
 
 ---
 
-### **🎯 MINUTOS 25-40: CONCEPTOS CLAVE**
+### **🎯 MINUTOS 25-40: CONCEPTOS PROFUNDOS**
 
-#### **Minuto 25-30: Explicar Threading vs GIL**
+#### **Minuto 25-30: Threading vs Multiprocessing - ¿Cuándo usar qué?**
 ```
-"PREGUNTA CLAVE: ¿Por qué Threading funciona en Python si existe el GIL?
+"REGLA DE ORO:
 
-RESPUESTA: El GIL se LIBERA durante operaciones I/O.
+Threading = I/O-bound
+- Leer archivos, bases de datos, APIs
+- Network requests, disk operations
+- GIL se libera durante I/O
 
-Cuando el hilo lee un archivo del disco:
-1. Python libera el GIL
-2. Otro hilo puede ejecutar
-3. El sistema operativo maneja la concurrencia
-
-Por eso Threading es PERFECTO para:
-- Leer archivos
-- Hacer requests HTTP  
-- Conectar a bases de datos
-- Operaciones de red"
+Multiprocessing = CPU-bound  
+- Cálculos matemáticos pesados
+- Image processing algorithms
+- Machine learning, data science
+- Cada proceso = GIL independiente"
 ```
 
-#### **Minuto 30-35: Hands-on - Modificar parámetros**
+#### **Minuto 30-35: Hands-on experimentos**
 ```bash
-# Experimento 1: Más filtros
-curl -X POST http://localhost:8000/api/process-batch/threading/ \
+# Experimento 1: Threading vs MP con mix de filtros
+curl -X POST http://localhost:8000/api/process-batch/compare-all/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["resize", "blur", "brightness"], 
-    "filter_params": {
-      "resize": {"width": 1200, "height": 900},
-      "blur": {"radius": 5.0},
-      "brightness": {"factor": 1.5}
-    }
-  }'
+  -d '{"filters": ["resize", "blur", "sharpen"], "filter_params": {"resize": {"width": 800, "height": 600}, "blur": {"radius": 2.0}, "sharpen": {"intensity": 3}}}'
 
-# Experimento 2: Stress test
+# Experimento 2: Stress test con multiprocessing
 curl -X POST http://localhost:8000/api/process-batch/stress/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "filters": ["resize", "blur", "brightness"], 
-    "filter_params": {
-      "resize": {"width": 800, "height": 600},
-      "blur": {"radius": 3.0},
-      "brightness": {"factor": 1.3}
-    }
-  }'
+  -d '{"filters": ["sharpen", "edges"], "filter_params": {"sharpen": {"intensity": 3}, "edges": {"threshold1": 50, "threshold2": 150}}}'
 ```
 
 **Que experimenten:**
 ```
-"Cambien los parámetros: width, height, radius, factor.
-¿Qué pasa si usan imágenes más grandes?
-¿Y si aumentan el radio del blur?"
+"Cambien la intensidad del sharpen: 1, 2, 3, 4, 5
+¿Cómo cambian los tiempos?
+¿En qué punto Multiprocessing DOMINA sobre Threading?"
 ```
 
-#### **Minuto 35-40: Ver resultados físicos**
+#### **Minuto 35-40: Ver y analizar resultados**
 ```bash
-# Ver todas las imágenes generadas
+# Ver todas las imágenes procesadas
 ls -la static/processed/
 
-# Si tienen Windows Explorer / Finder, abrir la carpeta
-# Mostrar las diferencias visuales entre filtros
+# Mostrar diferencias visuales
+# sharpen vs edge detection vs resize
 ```
 
-**Explicar:**
+**Explicar costos:**
 ```
-"Estos son archivos REALES procesados.
-Noten los nombres: incluyen timestamp y parámetros.
-¿Ven la diferencia entre resize_800x600 y blur_r3.0?"
+"Multiprocessing NO es gratis:
+- Overhead de crear procesos
+- Comunicación entre procesos más lenta  
+- Mayor uso de memoria
+
+¿Vale la pena? Depende de si la tarea es CPU-bound."
 ```
 
 ---
 
-### **🚀 MINUTOS 40-45: WRAP-UP Y SIGUIENTE SESIÓN**
+### **🚀 MINUTOS 40-45: WRAP-UP**
 
-#### **Minuto 40-43: Preguntas y respuestas**
+#### **Minuto 40-43: Síntesis y preguntas**
 ```
-"¿Preguntas sobre Threading?
-¿Quedó claro cuándo usar Threading vs cuándo NO?
-¿Entendieron por qué funciona a pesar del GIL?"
+"SÍNTESIS DEL DÍA:
 
-Respuestas típicas:
-- Threading = I/O-bound (leer archivos, red, DB)
-- GIL se libera durante I/O
-- ThreadPoolExecutor maneja los hilos automáticamente
+Threading = GIL compartido, perfecto para I/O
+Multiprocessing = GIL independiente, perfecto para CPU
+
+¿Preguntas?
+- ¿Cuándo elegir uno u otro?
+- ¿Cómo saber si mi tarea es I/O-bound o CPU-bound?
+- ¿Se pueden combinar ambos enfoques?"
 ```
 
 #### **Minuto 43-45: Preview mañana**
 ```
-"MAÑANA - Día 2: MULTIPROCESSING
+"MAÑANA - Día 3: ASYNC + DISTRIBUTED
 
-¿Cuándo Threading NO es suficiente?
-- Filtros que saturan CPU (edge detection, sharpen)
-- Algoritmos matemáticos pesados
-- Cuando necesitas VERDADERO paralelismo
+Pregunta: ¿Y si necesitamos manejar 1000 requests simultáneos?
+Threading tiene límites, Multiprocessing consume mucha memoria.
 
-Compararemos:
-curl .../compare-all/
-- Sequential 
-- Threading
-- Multiprocessing
-
-¡Veremos cuándo Multiprocessing DOMINA sobre Threading!"
+Solución: Async programming + Distributed workers
+- async/await para concurrencia masiva
+- Message queues para distribución
+- Redis/Celery para trabajos en background"
 ```
 
 ---
 
-## 🎯 **CURLS LISTOS PARA COPIAR/PEGAR**
+## 🎯 **CURLS PARA DEMOS**
 
-### **Demo básica:**
+### **1. Comparación Threading vs Multiprocessing:**
 ```bash
-curl -X POST http://localhost:8000/api/process-batch/compare/ -H "Content-Type: application/json" -d '{"filters": ["resize", "blur"], "filter_params": {"resize": {"width": 800, "height": 600}, "blur": {"radius": 3.0}}}'
+curl -X POST http://localhost:8000/api/process-batch/compare-all/ -H "Content-Type: application/json" -d '{"filters": ["resize", "sharpen"], "filter_params": {"resize": {"width": 800, "height": 600}, "sharpen": {"intensity": 2}}}'
 ```
 
-### **Threading con 3 filtros:**
+### **2. Solo Multiprocessing CPU-intensivo:**
 ```bash
-curl -X POST http://localhost:8000/api/process-batch/threading/ -H "Content-Type: application/json" -d '{"filters": ["resize", "blur", "brightness"], "filter_params": {"resize": {"width": 800, "height": 600}, "blur": {"radius": 2.0}, "brightness": {"factor": 1.2}}}'
+curl -X POST http://localhost:8000/api/process-batch/multiprocessing/ -H "Content-Type: application/json" -d '{"filters": ["sharpen", "edges"], "filter_params": {"sharpen": {"intensity": 3}, "edges": {"threshold1": 50, "threshold2": 150}}}'
 ```
 
-### **Preview multiprocessing:**
+### **3. Stress test multiprocessing:**
 ```bash
-curl -X POST http://localhost:8000/api/process-batch/multiprocessing/ -H "Content-Type: application/json" -d '{"filters": ["sharpen"], "filter_params": {"sharpen": {"intensity": 3}}}'
+curl -X POST http://localhost:8000/api/process-batch/stress/ -H "Content-Type: application/json" -d '{"filters": ["sharpen"], "filter_params": {"sharpen": {"intensity": 4}}}'
 ```
 
 ---
 
-## 📊 **MÉTRICAS ESPERADAS**
+## 📊 **MÉTRICAS ESPERADAS HOY**
 
-| Método | Tiempo típico | Speedup |
-|--------|---------------|---------|
-| Sequential | 2-4 segundos | 1.0x (baseline) |
-| Threading | 0.8-1.5 segundos | 2-3x |
-| Multiprocessing | 1-2 segundos | 2x (mañana) |
+| Filtro | Threading | Multiprocessing | Ganador |
+|--------|-----------|-----------------|---------|
+| resize (I/O) | 1.2s | 1.8s | **Threading** |
+| blur (I/O) | 1.0s | 1.5s | **Threading** |  
+| sharpen (CPU) | 3.5s | 2.1s | **Multiprocessing** |
+| edges (CPU) | 5.2s | 2.8s | **Multiprocessing** |
 
 ---
 
-## 🎓 **PUNTOS CLAVE A ENFATIZAR**
+## 🎓 **TAKEAWAYS CLAVE**
 
-1. **Threading FUNCIONA en Python** para I/O-bound tasks
-2. **GIL no es problema** cuando el hilo está esperando I/O
-3. **ThreadPoolExecutor** es la herramienta correcta
-4. **I/O-bound vs CPU-bound** determina la estrategia
-5. **Filtros reales**: resize, blur, brightness son I/O-bound
+1. **Threading ≠ Multiprocessing** - Casos de uso diferentes
+2. **I/O-bound = Threading** (GIL se libera)
+3. **CPU-bound = Multiprocessing** (GIL independiente)
+4. **Overhead matters** - Multiprocessing no es gratis
+5. **Real world**: Combinar ambos enfoques según necesidad
 
-**¡Listo para una clase exitosa!** 🚀 
+**¡Hoy dominamos cuándo usar cada herramienta de concurrencia!** 🚀 
