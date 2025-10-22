@@ -1,3 +1,0 @@
-requests==2.31.0
-Django==4.2.7
-psutil==5.9.6 

@@ -431,7 +431,7 @@ async def run_complete_demonstration():
     demo_scalability_difference()
     
     # Parte 2: Race conditions
-    demonstrate_threading_race_conditions()
+    demonstrate_threading_race_conditions()   
     await demonstrate_async_no_race_conditions()
     explain_why_async_is_safe()
     

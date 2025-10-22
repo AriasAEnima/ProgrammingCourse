@@ -149,7 +149,7 @@ def simulate_tasks_with_threadpool(tasks: List[tuple], max_workers: int = 3) -> 
     
     total_time = time.time() - total_start
     print(f"\n⏱️ TIEMPO TOTAL THREADPOOL: {total_time:.2f} segundos")
-    print(f"📊 Workers usados: {max_workers}")
+    print(f"📊 Max workers: {max_workers}")
     
     return results
 
