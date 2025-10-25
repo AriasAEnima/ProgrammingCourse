@@ -1,0 +1,23 @@
+
+
+- Install Git:
+https://git-scm.com/install/
+
+- Create a Github Account
+## Resources : 
+
+https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f&index=1
+
+- Create a public repository (no your name)
+https://www.youtube.com/watch?v=-RZ03WHqkaY
+
+- Install Github Desktop:
+https://desktop.github.com/download/
+
+-  Clone this repository: 
+https://github.com/AriasAEnima/ProgrammingCourse
+
+- Check the homework here:
+https://github.com/AriasAEnima/ProgrammingCourse/tree/master/Chapter7_Web/Servers/python/SimpleFlask
+
+======== SHARE YOUR GITHUB REPOSITORY LINK ! ==========

@@ -56,6 +56,17 @@ Es un fragmento de informacion que debe ser espeficiado por un header. HTML , JS
 
 ## REST
 
+Es un subfamilia del protocol HTTP que utiliza json como estructura.
+
+JSON => Javascript Simple Object Notation
+
+## RESTFULL
+
+Obedece a los buenos estandares de HTTP-REST
+
+
 ## Postman 
+
+Permite simular peticiones granulares como las que realiza el explorador 
 
 ## VENV
