@@ -5,10 +5,35 @@
 * Check the YOUR link on the webside :) 
 * The gitignore file can be graded !!
 
+## The topics : 
+
+📚 Libros
+
+💻 Laptops
+
+🎬 Películas
+
+🍽️ Restaurantes
+
+🌿 Plantas
+
+🧸 Juguetes
+
+🍲 Recetas de cocina
+
+🐶 Mascotas
+
+🎮 Videojuegos
+
+🚗 Autos o vehículos
+
+👕 Ropa o moda
+
+
 ## Create a flask app-file with your topic
 
-* Create a strucuture of your topic with adleast 5 fields
-* Create a "burned" dictonary with 10 diferents elements.
+* Create a structure of your topic with adleast 5 fields
+* Create a "burned" dictonary with 5 diferents elements.
 
 ---
 With grade only with code + img evidence:
