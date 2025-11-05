@@ -22,5 +22,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('static-pages/', include('staticpages.urls')),
-    path('api/desk/', include('desk.urls'))
+    path('api/v1/desk/', include('desk.urls')),
+    path('dynamic-pages/', include('dynamic_templates.urls'))
 ]

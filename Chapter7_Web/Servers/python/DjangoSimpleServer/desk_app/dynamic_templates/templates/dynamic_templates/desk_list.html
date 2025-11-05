@@ -1,0 +1,21 @@
+{% extends 'dynamic_templates/base.html' %}
+
+{% block content %}
+<h2> Todas las mesas</h2>
+
+{% for desk_item in desks %}
+    <div class="desk_item">
+        <h3><a href="{% url 'template_get_desk' desk_item.desk_id %}">{{ desk_item.name }}</a></h3>
+        <p>Width: {{ desk_item.width }}</p>
+        <p>Width: {{ desk_item.height }}</p>
+    </div>
+{% empty %}
+    <div class="desk_item">
+        <h3>No hay mesas aún</h3>
+    </div>
+{% endfor %}
+
+<div style="margin-top: 30px; text-align: center;">
+    <small>Total de mesas: {{ desks|length }}</small>
+</div>
+{% endblock %}
