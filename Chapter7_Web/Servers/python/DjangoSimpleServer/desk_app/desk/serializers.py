@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework_mongoengine import serializers as mongo_serializers
 from .models import Desk
 
 
