@@ -11,9 +11,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+import mongoengine
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -130,3 +136,36 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# MongoDB Configuration
+# Primero intentamos usar MONGODB_URI si existe (útil para MongoDB Atlas)
+MONGODB_URI = os.getenv('MONGODB_URI')
+
+if MONGODB_URI:
+    # Si existe MONGODB_URI, úsalo directamente
+    mongoengine.connect(host=MONGODB_URI)
+else:
+    # Si no, construye la conexión con las variables individuales
+    MONGODB_HOST = os.getenv('MONGODB_HOST', 'localhost')
+    MONGODB_PORT = int(os.getenv('MONGODB_PORT', 27017))
+    MONGODB_DB = os.getenv('MONGODB_DB', 'desk_database')
+    MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', '')
+    MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', '')
+    
+    # Conectar a MongoDB
+    if MONGODB_USERNAME and MONGODB_PASSWORD:
+        mongoengine.connect(
+            db=MONGODB_DB,
+            host=MONGODB_HOST,
+            port=MONGODB_PORT,
+            username=MONGODB_USERNAME,
+            password=MONGODB_PASSWORD,
+            authentication_source='admin'  # Base de datos de autenticación
+        )
+    else:
+        # Conexión sin autenticación (útil para desarrollo local)
+        mongoengine.connect(
+            db=MONGODB_DB,
+            host=MONGODB_HOST,
+            port=MONGODB_PORT
+        )
