@@ -1,11 +1,11 @@
-{% extends 'dynamic_templates/base.html' %}
+{% extends 'dynamic_templates/new-base.html' %}
 
 {% block content %}
 <h2> Todas las mesas</h2>
 
 {% for desk_item in desks %}
     <div class="desk_item">
-        <h3><a href="{% url 'template_get_desk' desk_item.desk_id %}">{{ desk_item.name }}</a></h3>
+        <h3>{{ desk_item.name }}</h3>
         <p>Width: {{ desk_item.width }}</p>
         <p>Width: {{ desk_item.height }}</p>
     </div>

@@ -141,31 +141,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Primero intentamos usar MONGODB_URI si existe (útil para MongoDB Atlas)
 MONGODB_URI = os.getenv('MONGODB_URI')
 
-if MONGODB_URI:
-    # Si existe MONGODB_URI, úsalo directamente
-    mongoengine.connect(host=MONGODB_URI)
-else:
-    # Si no, construye la conexión con las variables individuales
-    MONGODB_HOST = os.getenv('MONGODB_HOST', 'localhost')
-    MONGODB_PORT = int(os.getenv('MONGODB_PORT', 27017))
-    MONGODB_DB = os.getenv('MONGODB_DB', 'desk_database')
-    MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', '')
-    MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', '')
-    
-    # Conectar a MongoDB
-    if MONGODB_USERNAME and MONGODB_PASSWORD:
-        mongoengine.connect(
-            db=MONGODB_DB,
-            host=MONGODB_HOST,
-            port=MONGODB_PORT,
-            username=MONGODB_USERNAME,
-            password=MONGODB_PASSWORD,
-            authentication_source='admin'  # Base de datos de autenticación
-        )
+try :
+    if MONGODB_URI:
+        # Si existe MONGODB_URI, úsalo directamente
+        mongoengine.connect(host=MONGODB_URI)
     else:
-        # Conexión sin autenticación (útil para desarrollo local)
-        mongoengine.connect(
-            db=MONGODB_DB,
-            host=MONGODB_HOST,
-            port=MONGODB_PORT
-        )
+        # Si no, construye la conexión con las variables individuales
+        MONGODB_HOST = os.getenv('MONGODB_HOST', 'localhost')
+        MONGODB_PORT = int(os.getenv('MONGODB_PORT', 27017))
+        MONGODB_DB = os.getenv('MONGODB_DB', 'desk_database')
+        MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', '')
+        MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', '')
+        
+        # Conectar a MongoDB
+        if MONGODB_USERNAME and MONGODB_PASSWORD:
+            mongoengine.connect(
+                db=MONGODB_DB,
+                host=MONGODB_HOST,
+                port=MONGODB_PORT,
+                username=MONGODB_USERNAME,
+                password=MONGODB_PASSWORD,
+                authentication_source='admin'  # Base de datos de autenticación
+            )
+        else:
+            # Conexión sin autenticación (útil para desarrollo local)
+            mongoengine.connect(
+                db=MONGODB_DB,
+                host=MONGODB_HOST,
+                port=MONGODB_PORT,
+                connectTimeoutMS=2000,  # Connection timeout in milliseconds
+                socketTimeoutMS=2000
+            )
+except Exception as my_ex :
+    print(my_ex)    

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from desk.models import Desk
 
 # Create your views here.
 
@@ -14,9 +15,10 @@ def get_desk(_,desk_id):
 
 
 def get_desks(request):
-   contexto = {
-       "desks" : desks,
-       "tab_title": "GET ALL DESKS"
-   }
-   return render(request,'dynamic_templates/desk_list.html', contexto)
-    
+    desks_from_db = Desk.objects.all()
+    contexto = {
+        "desks" : desks_from_db,
+        "tab_title": "GET ALL DESKS"
+    }
+    return render(request,'dynamic_templates/desk_list.html', contexto)
+        
