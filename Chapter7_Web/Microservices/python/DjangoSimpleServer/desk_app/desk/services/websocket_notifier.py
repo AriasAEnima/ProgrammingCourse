@@ -36,7 +36,9 @@ def send_desk_notification(notification_type, desk_data):
         "type": f"desk_{notification_type}",
         "desk": desk_data,
         "timestamp": datetime.utcnow().isoformat() + 'Z'
-    }
+    } 
+    
+    logger.warning("------ Mensaje enviado -----")
     
     # Ejecutar en thread separado para no bloquear Django
     thread = threading.Thread(target=_send_message_sync, args=(message_data,))

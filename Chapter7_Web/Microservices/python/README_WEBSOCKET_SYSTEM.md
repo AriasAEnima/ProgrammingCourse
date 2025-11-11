@@ -9,7 +9,7 @@ Sistema completo de microservicios con notificaciones WebSocket para operaciones
 │                     SISTEMA DE MESAS                            │
 └─────────────────────────────────────────────────────────────────┘
 
-1️⃣ API REST (Django)          2️⃣ WebSocket Server           3️⃣ Consumer
+1️⃣ API REST (Django)          2️⃣ WebSocket Server           3️⃣ (N) Consumer(s)
 ┌──────────────────┐          ┌──────────────────┐          ┌──────────────┐
 │  DjangoSimpleServer│  HTTP   │  websocket_producer│  WS    │  websocket_  │
 │                  │─────────→│                  │─────────→│  consumer    │
@@ -35,7 +35,7 @@ Sistema completo de microservicios con notificaciones WebSocket para operaciones
 
 ```
 Microservices/python/
-├── websocket_producer/          # Servidor WebSocket
+├── websocket_server/          # Servidor WebSocket
 │   ├── websocket_server.py
 │   ├── requirements.txt
 │   └── README.md

@@ -110,6 +110,7 @@ def _handle_create_desk(request):
     
     # Enviar notificación WebSocket
     websocket_notifier.notify_desk_created(desk)
+    ## Send email
     
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 

@@ -1,4 +1,4 @@
-cFROM mongo:7
+FROM mongo:7
 
 # Crear directorio para datos persistentes
 WORKDIR /data/db
