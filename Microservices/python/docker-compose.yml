@@ -1,0 +1,80 @@
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: desk-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: desk_database
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - desk-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # WebSocket Server (debe iniciar primero)
+  websocket-server:
+    build:
+      context: ./websocket_server
+      dockerfile: Dockerfile
+    container_name: desk-websocket-server
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    networks:
+      - desk-network
+
+  # Django API (Producer)
+  django-api:
+    build:
+      context: ./DjangoSimpleServer
+      dockerfile: Dockerfile
+    container_name: desk-django-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_HOST=mongo
+      - MONGODB_PORT=27017
+      - MONGODB_DB=desk_database
+      - WEBSOCKET_URL=ws://websocket-server:8765
+    depends_on:
+      mongo:
+        condition: service_healthy
+      websocket-server:
+        condition: service_started
+    networks:
+      - desk-network
+    volumes:
+      # Montar volumen para desarrollo (opcional - hot reload)
+      - ./DjangoSimpleServer/desk_app:/app
+
+  # WebSocket Consumer (Cliente de prueba)
+  consumer:
+    build:
+      context: ./websocket_consumer
+      dockerfile: Dockerfile
+    container_name: desk-consumer
+    restart: unless-stopped
+    environment:
+      - WEBSOCKET_URL=ws://websocket-server:8765
+    depends_on:
+      - websocket-server
+    networks:
+      - desk-network
+    stdin_open: true
+    tty: true
+
+networks:
+  desk-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+

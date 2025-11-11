@@ -7,13 +7,15 @@ Muestra en tiempo real las actualizaciones de mesas
 import asyncio
 import websockets
 import json
+import os
 from datetime import datetime
 
 class DeskNotificationConsumer:
     """Clase para manejar las notificaciones de mesas via WebSocket"""
     
-    def __init__(self, websocket_url="ws://localhost:8765"):
-        self.websocket_url = websocket_url
+    def __init__(self, websocket_url=None):
+        # Usar variable de entorno o valor por defecto
+        self.websocket_url = websocket_url or os.getenv("WEBSOCKET_URL", "ws://localhost:8765")
         self.is_running = False
         
     async def connect_and_listen(self):
