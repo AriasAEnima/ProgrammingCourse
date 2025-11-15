@@ -114,7 +114,6 @@ def add_items_unsafe(thread_id: int, items_count: int):
         
         # STEP 1: Read current list (snapshot)
         current_snapshot = shared_list[:]  # Create copy
-        current_length = len(current_snapshot)
         
         # STEP 2: Vulnerability window - otros threads pueden modificar shared_list
         time.sleep(0.0001)  # Critical section sin protección
@@ -249,23 +248,24 @@ class UnsafeBankAccount:
         else:
             print(f"❌ Thread {thread_id}: Fondos insuficientes para retirar ${amount}")
 
+deposit_amounts = {
+    1: [100.0, 50.0, 75.0],  # Thread 1: depósitos
+    2: [25.0, 30.0, 20.0],   # Thread 2: depósitos  
+    3: [40.0, 60.0, 35.0],   # Thread 3: depósitos
+}
+
+withdraw_amounts = {
+    1: [10.0, 15.0, 5.0],    # Thread 1: retiros
+    2: [20.0, 25.0, 10.0],   # Thread 2: retiros
+    3: [30.0, 35.0, 15.0],   # Thread 3: retiros  
+}    
+
 def banking_thread(account: UnsafeBankAccount, thread_id: int, transactions: int):
     """Simula transacciones bancarias concurrentes con valores FIJOS para claridad"""
     print(f"🏦 Thread {thread_id}: Iniciando {transactions} transacciones")
     
     # Valores fijos predecibles por thread
-    deposit_amounts = {
-        1: [100.0, 50.0, 75.0],  # Thread 1: depósitos
-        2: [25.0, 30.0, 20.0],   # Thread 2: depósitos  
-        3: [40.0, 60.0, 35.0],   # Thread 3: depósitos
-    }
-    
-    withdraw_amounts = {
-        1: [10.0, 15.0, 5.0],    # Thread 1: retiros
-        2: [20.0, 25.0, 10.0],   # Thread 2: retiros
-        3: [30.0, 35.0, 15.0],   # Thread 3: retiros  
-    }
-    
+ 
     for i in range(transactions):
         transaction_num = i % 3  # Usar índice para valores fijos
         
