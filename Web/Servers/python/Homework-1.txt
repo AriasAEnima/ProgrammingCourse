@@ -3,7 +3,7 @@
 https://git-scm.com/install/
 
 - Create a Github Account
-## Resources : 
+## Resources: 
 
 https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f&index=1
 
