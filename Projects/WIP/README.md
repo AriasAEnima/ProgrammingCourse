@@ -51,8 +51,6 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 ### 🔜 Sesión 6: Docker y Containerización
 **Temas a cubrir:**
 - Dockerfiles
-- Docker Compose
-- Networking
 
 ### 🔜 Sesión 7: Introducción a Kubernetes
 **Temas a cubrir:**
@@ -76,8 +74,6 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 **Temas a cubrir:**
 - Sistema completo
 - Best practices
-- Deployment en producción
-
 ---
 
 ## 🚀 Comenzar

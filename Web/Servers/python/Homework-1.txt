@@ -1,5 +1,4 @@
 
-
 - Install Git:
 https://git-scm.com/install/
 
@@ -17,7 +16,5 @@ https://desktop.github.com/download/
 -  Clone this repository: 
 https://github.com/AriasAEnima/ProgrammingCourse
 
-- Check the homework here:
-https://github.com/AriasAEnima/ProgrammingCourse/tree/master/Chapter7_Web/Servers/python/SimpleFlask
 
 ======== SHARE YOUR GITHUB REPOSITORY LINK ! ==========

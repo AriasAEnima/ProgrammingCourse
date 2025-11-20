@@ -18,11 +18,13 @@ from .base_filter import BaseFilter
 from .blur_filter import BlurFilter
 from .brightness_filter import BrightnessFilter
 from .edges_filter import EdgesFilter
+from .gray_scale_filter import GrayScaleFilter
 
 __all__ = [
     'BaseFilter',
     'BlurFilter',
     'BrightnessFilter',
     'EdgesFilter',
+    'GrayScaleFilter'
 ]
 

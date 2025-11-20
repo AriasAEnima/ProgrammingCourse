@@ -24,7 +24,7 @@ def main():
     
     # 1. Definir rutas
     # Usamos rutas relativas para que el código sea portable
-    input_path = "images/sample.jpg"
+    input_path = "images/sample_4k.jpg"
     output_path = "output/blurred_sample.jpg"
     
     # 2. Verificar que la imagen existe

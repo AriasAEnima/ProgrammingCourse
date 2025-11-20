@@ -17,7 +17,7 @@ Es útil para:
 import os
 import time
 from PIL import Image
-from filters import BlurFilter, BrightnessFilter, EdgesFilter
+from filters import BlurFilter, BrightnessFilter, EdgesFilter, GrayScaleFilter
 
 
 def ensure_directory(path):
@@ -64,7 +64,7 @@ def main():
     print("=" * 60)
     
     # Configuración
-    input_path = "images/sample.jpg"
+    input_path = "images/sample_4k.jpg"
     output_dir = "output"
     
     # Verificar que la imagen existe
@@ -99,6 +99,7 @@ def main():
         (BrightnessFilter(factor=1.5), "Brillante 150%", "05_bright.jpg"),
         (BrightnessFilter(factor=2.0), "Muy Brillante 200%", "06_very_bright.jpg"),
         (EdgesFilter(), "Detección de Bordes", "07_edges.jpg"),
+        (GrayScaleFilter(), "Filtro a grises", "gray_scale.jpg")
     ]
     
     print(f"\n🔄 Procesando {len(filters_to_apply)} variaciones...")
