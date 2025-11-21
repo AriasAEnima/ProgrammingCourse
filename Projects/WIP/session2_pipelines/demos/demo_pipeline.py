@@ -49,9 +49,9 @@ def main():
     print("   3. Edges")
     
     pipeline1 = FilterPipeline([
+        EdgesFilter(),
         BlurFilter(radius=3),
-        BrightnessFilter(factor=1.3),
-        EdgesFilter()
+        BrightnessFilter(factor=1.3)
     ])
     
     print(f"\n✅ Pipeline creado: {pipeline1}")
