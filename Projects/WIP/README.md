@@ -13,7 +13,7 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 ## 📅 Plan de Sesiones
 
 ### ✅ Sesión 1: Fundamentos de Procesamiento de Imágenes (45 min)
-**Estado:** En desarrollo  
+**Estado:** ✅ Completada y probada  
 **Carpeta:** `session1_image_basics/`
 
 **Temas:**
@@ -24,17 +24,27 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 
 ---
 
-### 🔜 Sesión 2: Filtros Avanzados y Pipeline
-**Temas a cubrir:**
-- Cadena de filtros
-- Composición de operaciones
-- Performance y optimización
+### ✅ Sesión 2: Filtros Avanzados y Pipeline (45 min)
+**Estado:** ✅ Completada y probada  
+**Carpeta:** `session2_pipelines/`
 
-### 🔜 Sesión 3: Arquitectura de Workers
-**Temas a cubrir:**
-- Patrón Worker
-- Procesamiento asíncrono
-- Logging y monitoreo
+**Temas:**
+- FilterPipeline: Cadena de filtros
+- FilterFactory: Creación dinámica
+- BatchProcessor: Procesamiento en lote
+- Performance y composición
+
+---
+
+### ✅ Sesión 3: Arquitectura de Workers (45 min)
+**Estado:** ✅ Completada y probada  
+**Carpeta:** `session3_workers/`
+
+**Temas:**
+- Patrón Worker (BaseWorker → SimpleWorker)
+- TaskQueue: Cola de tareas en memoria
+- Logging estructurado
+- Health checks y estadísticas
 
 ### 🔜 Sesión 4: Redis y Colas de Tareas
 **Temas a cubrir:**
