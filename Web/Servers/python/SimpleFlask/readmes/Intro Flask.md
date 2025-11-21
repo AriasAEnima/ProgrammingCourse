@@ -70,3 +70,5 @@ Obedece a los buenos estandares de HTTP-REST
 Permite simular peticiones granulares como las que realiza el explorador 
 
 ## VENV
+
+https://listado.mercadolibre.com.co/computacion/portatiles-accesorios/portatiles/laptop_NoIndex_True_RAM*MEMORY*MODULE*TOTAL*CAPACITY_40GB-64GB?sb=all_mercadolibre#applied_filter_id%3DRAM_MEMORY_MODULE_TOTAL_CAPACITY%26applied_filter_name%3DCapacidad+total+del+m%C3%B3dulo+de+memoria+RAM%26applied_filter_order%3D6%26applied_value_id%3D%5B40GB-64GB%29%26applied_value_name%3D40+a+63+GB%26applied_value_order%3D4%26applied_value_results%3D263%26is_custom%3Dfalse

@@ -12,4 +12,11 @@ Buscar python => check box
 
 ## IP
 
-ipconfig
+ipconfig => tomar IP privada 
+
+## Telefono 
+
+http://<tu-ip>:8000 
+
+Deberias poder ver tu servidor
+
