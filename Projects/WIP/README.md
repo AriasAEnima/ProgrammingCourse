@@ -37,14 +37,20 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 ---
 
 ### ✅ Sesión 3: Arquitectura de Workers (45 min)
-**Estado:** ✅ Completada y probada  
+**Estado:** ✅ Completada y probada (todos los demos funcionando)
 **Carpeta:** `session3_workers/`
 
 **Temas:**
-- Patrón Worker (BaseWorker → SimpleWorker)
-- TaskQueue: Cola de tareas en memoria
+- Patrón Worker (BaseWorker → SimpleWorker → AsyncWorker)
+- TaskQueue: Cola thread-safe en memoria
 - Logging estructurado
 - Health checks y estadísticas
+- Paralelismo: Threading y AsyncIO
+
+**Demos:**
+- `demo_simple_worker.py` - Worker síncrono (3 tareas)
+- `demo_async_worker.py` - Worker asíncrono (6 tareas, max_concurrent=3)
+- `demo_multiple_workers.py` - 3 workers en paralelo (12 tareas, speedup: 2.44x)
 
 ### 🔜 Sesión 4: Redis y Colas de Tareas
 **Temas a cubrir:**

@@ -136,6 +136,28 @@ else:
 
 ---
 
+## 🎬 Demos Disponibles
+
+### Demo 1: Simple Worker
+```bash
+python demos/demo_simple_worker.py
+```
+Muestra worker síncrono procesando 3 tareas secuencialmente.
+
+### Demo 2: Async Worker
+```bash
+python demos/demo_async_worker.py
+```
+Muestra worker asíncrono procesando 6 tareas concurrentemente (max 3).
+
+### Demo 3: Múltiples Workers
+```bash
+python demos/demo_multiple_workers.py
+```
+Muestra 3 workers procesando 12 tareas en paralelo (speedup: 2.44x).
+
+---
+
 ## 🎨 Ejercicios Prácticos (15 min)
 
 ### Ejercicio 1: Multiple Workers (Medio)

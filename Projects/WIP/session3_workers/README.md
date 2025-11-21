@@ -73,12 +73,12 @@ session3_workers/
 │   ├── base_worker.py        # Worker base abstracto
 │   ├── simple_worker.py      # Worker síncrono simple
 │   ├── async_worker.py       # Worker asíncrono
-│   └── task_queue.py         # Cola de tareas (simulada)
+│   └── task_queue.py         # Cola de tareas en memoria
 │
 ├── demos/
-│   ├── demo_simple_worker.py
-│   ├── demo_async_worker.py
-│   └── demo_multiple_workers.py
+│   ├── demo_simple_worker.py    # Demo de worker síncrono
+│   ├── demo_async_worker.py     # Demo de worker asíncrono
+│   └── demo_multiple_workers.py # Demo de múltiples workers
 │
 └── output/
 ```
@@ -171,19 +171,28 @@ class SimpleWorker(BaseWorker):
 class AsyncWorker(BaseWorker):
     """Worker que procesa tareas de manera asíncrona."""
     
-    async def process_task(self, task):
+    async def process_task_async(self, task):
         """Procesa tarea de forma asíncrona."""
-        # Puede procesar múltiples tareas concurrentemente
+        # Carga imagen sin bloquear
         image = await self.load_image_async(task['image_path'])
+        
+        # Aplica pipeline
         result = await self.apply_pipeline_async(image)
-        await self.save_result_async(result, task['output_path'])
+        
+        # Guarda resultado sin bloquear
+        await self.save_image_async(result, task['output_path'])
 ```
 
 **Ventajas:**
-- Puede procesar múltiples tareas
+- Puede procesar múltiples tareas concurrentemente
 - No bloquea en I/O (lectura/escritura)
-- Más eficiente
-- Preparado para sistema distribuido
+- Usa asyncio y semáforos para limitar concurrencia
+- Mayor throughput para tareas I/O-bound
+
+**Cuándo usar:**
+- Muchas imágenes pequeñas
+- Alto throughput requerido
+- Tareas I/O-bound
 
 ---
 
@@ -325,7 +334,7 @@ Muestra un worker procesando tareas de forma secuencial.
 python demos/demo_async_worker.py
 ```
 
-Muestra un worker procesando múltiples tareas concurrentemente.
+Muestra un worker asíncrono que procesa hasta 3 tareas concurrentemente.
 
 ### 3. Múltiples Workers:
 
@@ -333,7 +342,7 @@ Muestra un worker procesando múltiples tareas concurrentemente.
 python demos/demo_multiple_workers.py
 ```
 
-Simula varios workers procesando tareas en paralelo.
+Demuestra 3 workers procesando 12 tareas en paralelo con threading.
 
 ---
 
