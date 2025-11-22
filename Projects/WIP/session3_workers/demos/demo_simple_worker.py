@@ -27,6 +27,8 @@ def main():
     
     # Verificar imagen
     image_path = "images/sample.jpg"
+    image_path_2 = "images/sample2.jpg"
+
     if not os.path.exists(image_path):
         print(f"❌ No se encontró: {image_path}")
         return
@@ -41,9 +43,9 @@ def main():
     print("-" * 70)
     
     pipeline = FilterPipeline([
-        BlurFilter(radius=2),
         BrightnessFilter(factor=1.2),
-        EdgesFilter()
+        EdgesFilter(),
+        BlurFilter(radius=2)
     ])
     
     print(f"✅ Pipeline creado: {pipeline}")
@@ -66,11 +68,11 @@ def main():
         },
         {
             'name': 'Task 2: Same Pipeline',
-            'image_path': image_path,
+            'image_path': image_path_2,
             'output_path': 'output/worker_task2.jpg'
         },
         {
-            'name': 'Task 3: Another',
+            'name': 'Task 3: Same Pipeline',
             'image_path': image_path,
             'output_path': 'output/worker_task3.jpg'
         },
