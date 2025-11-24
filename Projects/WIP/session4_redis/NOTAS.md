@@ -1,45 +1,33 @@
 # 🔴 Sesión 4: Redis - NOTAS
 
-## ⚠️ Prerequisito: Redis debe estar corriendo
+## ⚠️ Prerequisito: Redis con Docker
 
-Para ejecutar los demos de esta sesión, necesitas tener Redis instalado y corriendo.
+**IMPORTANTE:** Abre Docker Desktop primero y espera a que inicie completamente.
 
-### Opción 1: Docker (Recomendado) ✅
+### Comandos de Docker (funcionan en Windows, macOS, Linux):
 
 ```bash
+# 1. Iniciar Redis
 docker run -d -p 6379:6379 --name redis redis:7-alpine
-```
 
-Verificar:
-```bash
-docker ps | grep redis
-redis-cli ping  # Debe responder: PONG
-```
+# 2. Verificar que funciona
+docker exec redis redis-cli ping
+# Debe responder: PONG
 
-Detener cuando termines:
-```bash
+# 3. Ver logs (opcional)
+docker logs redis
+
+# 4. Detener cuando termines
 docker stop redis
 docker rm redis
 ```
 
-### Opción 2: Instalación Local
-
-**macOS:**
+**Si ya existe un contenedor "redis":**
 ```bash
-brew install redis
-redis-server &
-```
-
-**Linux:**
-```bash
-sudo apt update
-sudo apt install redis-server
-sudo systemctl start redis
-```
-
-**Verificar:**
-```bash
-redis-cli ping  # Debe responder: PONG
+# Limpiar y empezar de nuevo
+docker stop redis
+docker rm redis
+docker run -d -p 6379:6379 --name redis redis:7-alpine
 ```
 
 ---
@@ -48,24 +36,33 @@ redis-cli ping  # Debe responder: PONG
 
 ### 1. Activar entorno
 
+**Windows:**
+```cmd
+cd session4_redis
+venv\Scripts\activate
+```
+
+**macOS/Linux:**
 ```bash
 cd session4_redis
-source venv/bin/activate  # Ya instalado
+source venv/bin/activate
 ```
 
 ### 2. Verificar Redis
 
 ```bash
-redis-cli ping
+docker exec redis redis-cli ping
+# Debe responder: PONG
 ```
 
-Si no responde "PONG", sigue las instrucciones arriba.
+Si no responde, revisa los comandos de arriba.
 
 ### 3. Ejecutar demos
 
 ```bash
-# Demo básico
 python demos/demo_redis_basic.py
+python demos/demo_distributed_workers.py
+```
 
 # Demo distribuido
 python demos/demo_distributed_workers.py
@@ -94,21 +91,26 @@ python demos/demo_distributed_workers.py
 
 ## 🔧 Comandos Útiles de Redis
 
+Todos estos comandos usan `docker exec` (funcionan igual en Windows, macOS, Linux):
+
 ```bash
 # Ver todas las keys
-redis-cli KEYS "*"
+docker exec redis redis-cli KEYS "*"
 
 # Ver tareas pendientes
-redis-cli LRANGE image_processing:pending 0 -1
+docker exec redis redis-cli LRANGE image_processing:pending 0 -1
 
 # Ver tareas completadas
-redis-cli LRANGE image_processing:completed 0 -1
+docker exec redis redis-cli LRANGE image_processing:completed 0 -1
 
 # Limpiar todo
-redis-cli FLUSHDB
+docker exec redis redis-cli FLUSHDB
 
 # Monitorear en tiempo real
-redis-cli MONITOR
+docker exec -it redis redis-cli MONITOR
+
+# Entrar a la consola interactiva de Redis
+docker exec -it redis redis-cli
 ```
 
 ---
