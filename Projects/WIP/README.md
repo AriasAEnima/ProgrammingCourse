@@ -53,10 +53,31 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 - `demo_multiple_workers.py` - 3 workers en paralelo (12 tareas, speedup: 2.44x)
 
 ### 🔜 Sesión 4: Redis y Colas de Tareas
-**Temas a cubrir:**
-- Redis como cola
-- Serialización de tareas
-- Estados de tareas
+**Duración:** 45 minutos  
+**Estado:** ✅ Completada - Lista para probar con Redis  
+**Carpeta:** `session4_redis/`
+
+**Temas:**
+- Redis como cola distribuida
+- RedisTaskQueue con operaciones atómicas (RPOPLPUSH)
+- RedisWorker procesando desde Redis
+- Multiprocessing para paralelismo real (sin GIL)
+- Persistencia de tareas y resultados
+
+**Material:**
+- `README.md` - ✅ Guía completa del estudiante
+- `GUIA_RAPIDA.md` - ✅ Guía del instructor
+- `workers/redis_task_queue.py` - ✅ Cola distribuida en Redis
+- `workers/redis_worker.py` - ✅ Worker que lee de Redis
+- `demos/demo_redis_basic.py` - ✅ Demo básico con Redis
+- `demos/demo_distributed_workers.py` - ✅ Demo de 3 workers distribuidos
+
+**Requisito:**
+- Redis instalado y corriendo (`redis-server` o Docker)
+
+**Demos:**
+- Demo 1: Worker básico procesando 3 tareas desde Redis
+- Demo 2: 3 workers distribuidos (multiprocessing) procesando 15 tareas
 
 ### 🔜 Sesión 5: Sistema Distribuido Básico
 **Temas a cubrir:**
