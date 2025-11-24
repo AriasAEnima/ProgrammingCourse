@@ -1,60 +1,42 @@
 # 🔴 Sesión 4: Redis y Colas Distribuidas
 
-## 🎯 Objetivos de Aprendizaje
+## ⚠️ Setup Rápido
 
-Al final de esta sesión podrás:
-- Conectar a Redis y usar colas distribuidas
-- Implementar `RedisTaskQueue` para tareas persistentes
-- Crear workers que procesen tareas desde Redis
-- Ejecutar múltiples workers en procesos separados
-- Entender las ventajas de Redis sobre colas en memoria
+### 1. Iniciar Redis con Docker
 
----
-
-## 📋 Prerequisitos
-
-- Haber completado Sesión 3 (Workers)
-- Redis instalado y corriendo
-- Python 3.8+
-
----
-
-## 🚀 Setup
-
-### 1. Instalar Redis
-
-**macOS:**
 ```bash
-brew install redis
-redis-server
-```
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt update
-sudo apt install redis-server
-sudo systemctl start redis
-```
-
-**Docker (cualquier OS):**
-```bash
+# Abre Docker Desktop primero, luego:
 docker run -d -p 6379:6379 --name redis redis:7-alpine
+
+# Verificar
+docker exec redis redis-cli ping  # Debe responder: PONG
 ```
 
-### 2. Verificar Redis
-
-```bash
-redis-cli ping
-# Debería responder: PONG
-```
-
-### 3. Instalar Dependencias Python
+### 2. Instalar dependencias
 
 ```bash
 cd session4_redis
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Windows:
+venv\Scripts\activate
+
+# macOS/Linux:
+source venv/bin/activate
+
 pip install -r requirements.txt
+```
+
+### 3. Ejecutar demos
+
+```bash
+python demos/demo_redis_basic.py
+python demos/demo_distributed_workers.py
+```
+
+**Detener Redis cuando termines:**
+```bash
+docker stop redis && docker rm redis
 ```
 
 ---
