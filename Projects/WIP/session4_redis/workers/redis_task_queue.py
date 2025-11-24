@@ -148,24 +148,16 @@ class RedisTaskQueue:
             Dict con la tarea o None si no hay tareas
             
         Nota:
-            Usa RPOPLPUSH atómico de Redis para mover la tarea
-            de 'pending' a 'processing' de forma segura.
+            Usa RPOP atómico de Redis para obtener la tarea.
         """
-        # RPOPLPUSH: Remueve de pending (RPOP) y añade a processing (LPUSH)
-        # Es atómico, así que múltiples workers no obtienen la misma tarea
+        # Obtener tarea de pending
         if timeout > 0:
             # Versión bloqueante
-            task_id = self.redis.brpoplpush(
-                self.pending_key,
-                self.processing_key,
-                timeout=timeout
-            )
+            result = self.redis.brpop(self.pending_key, timeout=timeout)
+            task_id = result[1] if result else None
         else:
             # Versión no bloqueante
-            task_id = self.redis.rpoplpush(
-                self.pending_key,
-                self.processing_key
-            )
+            task_id = self.redis.rpop(self.pending_key)
         
         if not task_id:
             return None
@@ -176,7 +168,6 @@ class RedisTaskQueue:
         
         if not task_data:
             # Tarea no encontrada (raro, pero posible)
-            self.redis.lrem(self.processing_key, 1, task_id)
             return None
         
         task = json.loads(task_data)
@@ -192,6 +183,7 @@ class RedisTaskQueue:
             'worker_id': worker_id,
             'started_at': task['started_at']
         })
+        # Añadir a processing (HASH)
         pipe.hset(self.processing_key, task_id, worker_id)
         pipe.execute()
         
