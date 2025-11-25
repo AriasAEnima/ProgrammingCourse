@@ -52,9 +52,9 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 - `demo_async_worker.py` - Worker asíncrono (6 tareas, max_concurrent=3)
 - `demo_multiple_workers.py` - 3 workers en paralelo (12 tareas, speedup: 2.44x)
 
-### 🔜 Sesión 4: Redis y Colas de Tareas
+### ✅ Sesión 4: Redis y Colas de Tareas
 **Duración:** 45 minutos  
-**Estado:** ✅ Completada - Lista para probar con Redis  
+**Estado:** ✅ Completada y probada
 **Carpeta:** `session4_redis/`
 
 **Temas:**
@@ -64,30 +64,49 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 - Multiprocessing para paralelismo real (sin GIL)
 - Persistencia de tareas y resultados
 
+**Demos:**
+- `demo_redis_basic.py` - Worker básico procesando 3 tareas
+- `demo_distributed_workers.py` - 3 workers distribuidos (multiprocessing) procesando 15 tareas
+
+---
+
+### ✅ Sesión 5: Health Checks, Auto-Recovery y Monitoring
+**Duración:** 45 minutos  
+**Estado:** ✅ Completada - Lista para probar
+**Carpeta:** `session5_monitoring/`
+
+**Temas:**
+- Worker Registry: Registro centralizado de workers activos
+- Heartbeats: Workers reportan salud periódicamente
+- Auto-recovery: Reintentos automáticos de tareas fallidas
+- Dead Letter Queue (DLQ): Tareas irrecuperables
+- Graceful shutdown: Cerrar workers limpiamente
+- Stuck task recovery: Detectar tareas atascadas
+
 **Material:**
 - `README.md` - ✅ Guía completa del estudiante
-- `GUIA_RAPIDA.md` - ✅ Guía del instructor
-- `workers/redis_task_queue.py` - ✅ Cola distribuida en Redis
-- `workers/redis_worker.py` - ✅ Worker que lee de Redis
-- `demos/demo_redis_basic.py` - ✅ Demo básico con Redis
-- `demos/demo_distributed_workers.py` - ✅ Demo de 3 workers distribuidos
-
-**Requisito:**
-- Redis instalado y corriendo (`redis-server` o Docker)
+- `workers/worker_registry.py` - ✅ Registro de workers con heartbeats
+- `workers/redis_task_queue_v2.py` - ✅ Cola con auto-recovery y DLQ
+- `workers/monitored_redis_worker.py` - ✅ Worker con monitoring
 
 **Demos:**
-- Demo 1: Worker básico procesando 3 tareas desde Redis
-- Demo 2: 3 workers distribuidos (multiprocessing) procesando 15 tareas
+- `demo_worker_registry.py` - Registry, heartbeats, detectar workers muertos
+- `demo_auto_recovery.py` - Reintentos automáticos y Dead Letter Queue
+- `demo_monitored_system.py` - Sistema completo con 3 workers monitoreados
 
-### 🔜 Sesión 5: Sistema Distribuido Básico
-**Temas a cubrir:**
-- Múltiples workers
-- Distribución de carga
-- Registry de workers
+**Requisito:**
+- Redis corriendo en Docker
+
+---
 
 ### 🔜 Sesión 6: Docker y Containerización
 **Temas a cubrir:**
-- Dockerfiles
+- Dockerfiles para workers
+- Docker Compose multi-servicio
+- Networking entre containers
+- Volúmenes para persistencia
+
+---
 
 ### 🔜 Sesión 7: Introducción a Kubernetes
 **Temas a cubrir:**
@@ -101,7 +120,7 @@ Construir un sistema distribuido de procesamiento de imágenes usando:
 - Resource limits
 - Load balancing
 
-### 🔜 Sesión 9: Monitoreo y Observabilidad
+### 🔜 Sesión 9: Monitoreo y Observabilidad Avanzada
 **Temas a cubrir:**
 - Métricas
 - Logs centralizados
