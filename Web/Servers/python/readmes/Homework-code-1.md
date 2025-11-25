@@ -39,7 +39,7 @@
 With grade only with code + img evidence:
 * Create a endpoint to get a one element of your topic.
 * Create a endpoint with a GET resource of all elements of your topic.
-* Add at least two query paarams (optionals) to filter of that GET elements (all)
+* Add at least two query params (optionals) to filter of that GET elements (all)
 * Create a POST resource to add a element to the "burned" dictionary.
 * Create a DELETE resource  ... 
 
