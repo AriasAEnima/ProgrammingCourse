@@ -39,6 +39,21 @@ python demos/demo_distributed_workers.py
 docker stop redis && docker rm redis
 ```
 
+### 4. Limpiar la cola (si es necesario)
+
+```bash
+# Limpiar TODA la base de datos de Redis
+docker exec redis redis-cli FLUSHDB
+
+# O limpiar usando Python
+python -c "from workers import RedisTaskQueue; RedisTaskQueue().clear()"
+```
+
+**¿Cuándo limpiar?**
+- Antes de ejecutar demos (para resultados limpios)
+- Cuando tienes tareas atascadas
+- Para empezar de cero
+
 ---
 
 ## 📂 Estructura del Proyecto
@@ -197,6 +212,52 @@ python demos/demo_distributed_workers.py
 - 15 tareas distribuidas automáticamente
 - Speedup por paralelismo real (sin GIL)
 - Distribución de carga entre workers
+
+---
+
+## 🧹 Limpieza y Mantenimiento
+
+### Limpiar todas las tareas
+
+```python
+from workers import RedisTaskQueue
+
+queue = RedisTaskQueue()
+queue.clear()  # Elimina todas las tareas y resultados
+```
+
+O desde la terminal:
+```bash
+# Limpiar toda la base de datos
+docker exec redis redis-cli FLUSHDB
+
+# Ver qué keys existen antes de limpiar
+docker exec redis redis-cli KEYS "*"
+```
+
+### Limpiar tareas específicas
+
+```python
+# Eliminar solo tareas completadas
+redis_client.delete('image_processing:completed')
+
+# Eliminar tarea específica
+redis_client.delete('task:TASK_ID')
+redis_client.delete('result:TASK_ID')
+```
+
+### Recuperar tareas atascadas
+
+Si un worker crashea, las tareas quedan en `processing`:
+
+```bash
+# Ver tareas en processing
+docker exec redis redis-cli HGETALL image_processing:processing
+
+# Mover de processing a pending (manualmente)
+docker exec redis redis-cli HDEL image_processing:processing TASK_ID
+docker exec redis redis-cli RPUSH image_processing:pending TASK_ID
+```
 
 ---
 
