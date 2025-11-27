@@ -1,0 +1,119 @@
+# ============================================================================
+# Docker Compose para Sistema de Procesamiento de Imágenes Distribuido
+# ============================================================================
+#
+# Servicios:
+# - redis: Cola de tareas distribuida
+# - worker-1, worker-2, worker-3: Workers de procesamiento
+#
+# Uso:
+#   docker-compose up -d          # Iniciar en background
+#   docker-compose logs -f        # Ver logs
+#   docker-compose scale worker=5 # Escalar a 5 workers
+#   docker-compose down           # Detener y limpiar
+#
+
+services:
+  # ============================================================================
+  # Redis: Cola de tareas distribuida
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: image-processing-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - processing-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ============================================================================
+  # Workers: Procesadores de imágenes
+  # ============================================================================
+  worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: image-worker-1
+    restart: unless-stopped
+    environment:
+      - WORKER_ID=worker-1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - HEARTBEAT_INTERVAL=10
+    volumes:
+      # Montar imágenes de entrada (solo lectura)
+      - ./images:/app/images:ro
+      # Montar directorio de salida
+      - ./output:/app/output
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - processing-network
+
+  worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: image-worker-2
+    restart: unless-stopped
+    environment:
+      - WORKER_ID=worker-2
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - HEARTBEAT_INTERVAL=10
+    volumes:
+      - ./images:/app/images:ro
+      - ./output:/app/output
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - processing-network
+
+  worker-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: image-worker-3
+    restart: unless-stopped
+    environment:
+      - WORKER_ID=worker-3
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - HEARTBEAT_INTERVAL=10
+    volumes:
+      - ./images:/app/images:ro
+      - ./output:/app/output
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - processing-network
+
+# ============================================================================
+# Redes
+# ============================================================================
+networks:
+  processing-network:
+    driver: bridge
+    name: image-processing-network
+
+# ============================================================================
+# Volúmenes
+# ============================================================================
+volumes:
+  redis_data:
+    name: image-processing-redis-data
+

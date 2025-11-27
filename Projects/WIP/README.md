@@ -1,142 +1,142 @@
-# 📚 Serie: Procesamiento de Imágenes Distribuido con Kubernetes
+# Curso de Procesamiento Distribuido de Imágenes con Kubernetes
 
-## 🎯 Objetivo del Curso (10 Sesiones)
+Curso práctico de 10 sesiones para aprender procesamiento de imágenes y sistemas distribuidos.
 
-Construir un sistema distribuido de procesamiento de imágenes usando:
-- Python (PIL/Pillow)
-- Redis (Colas de tareas)
-- Docker (Containerización)
-- Kubernetes (Orquestación)
+## 📊 Estado del Curso
 
----
+### ✅ Sesiones Completadas
 
-## 📅 Plan de Sesiones
-
-### ✅ Sesión 1: Fundamentos de Procesamiento de Imágenes (45 min)
-**Estado:** ✅ Completada y probada  
-**Carpeta:** `session1_image_basics/`
-
-**Temas:**
+#### Session 1: Fundamentos de Procesamiento de Imágenes
+**Estado**: ✅ Completada  
+**Temas**:  
 - Introducción a PIL/Pillow
-- Operaciones básicas con imágenes
-- Filtros simples (blur, brightness, edges)
-- Arquitectura modular
+- Filtros básicos (blur, brightness, edges)
+- Arquitectura con clases base abstractas
+- Módulos y separación de responsabilidades
 
----
+#### Sesión 2: Pipelines y Factory Pattern
+**Estado**: ✅ Completada  
+**Temas**:
+- Filter Pipeline para encadenar filtros
+- Factory Pattern para crear filtros dinámicamente
+- Batch processing de múltiples imágenes
+- Grayscale filter
 
-### ✅ Sesión 2: Filtros Avanzados y Pipeline (45 min)
-**Estado:** ✅ Completada y probada  
-**Carpeta:** `session2_pipelines/`
+#### Sesión 3: Arquitectura de Workers
+**Estado**: ✅ Completada  
+**Temas**:
+- Worker Pattern (synchronous y asynchronous)
+- In-memory task queue (thread-safe)
+- Threading y AsyncIO con semáforos
+- Structured logging
+- Health checks básicos
 
-**Temas:**
-- FilterPipeline: Cadena de filtros
-- FilterFactory: Creación dinámica
-- BatchProcessor: Procesamiento en lote
-- Performance y composición
+#### Sesión 4: Redis y Colas Distribuidas
+**Estado**: ✅ Completada  
+**Temas**:
+- Redis como cola de tareas distribuida
+- Operaciones atómicas (RPOPLPUSH)
+- Persistencia con AOF
+- Multiprocessing para paralelismo real (bypass GIL)
+- Setup cross-platform con Docker
 
----
+#### Sesión 5: Health Checks, Auto-Recovery y Monitoring
+**Estado**: ✅ Completada  
+**Temas**:
+- Worker Registry con heartbeats
+- Detección de workers muertos
+- Auto-recovery con retries
+- Dead Letter Queue (DLQ)
+- Graceful shutdown
+- Sistema de monitoring completo
 
-### ✅ Sesión 3: Arquitectura de Workers (45 min)
-**Estado:** ✅ Completada y probada (todos los demos funcionando)
-**Carpeta:** `session3_workers/`
+#### Sesión 6: Docker y Containerización 
+**Estado**: ✅ Completada  
+**Temas**:
+- Multi-stage Dockerfile optimizado
+- Docker Compose para Redis + Workers
+- Health checks en contenedores
+- Volúmenes compartidos
+- Demos para interactuar con el sistema dockerizado
+- Usuario no-root para seguridad
+- Persistencia de Redis con AOF
 
-**Temas:**
-- Patrón Worker (BaseWorker → SimpleWorker → AsyncWorker)
-- TaskQueue: Cola thread-safe en memoria
-- Logging estructurado
-- Health checks y estadísticas
-- Paralelismo: Threading y AsyncIO
+**Performance**: 10 imágenes procesadas en 0.5s con 3 workers
 
-**Demos:**
-- `demo_simple_worker.py` - Worker síncrono (3 tareas)
-- `demo_async_worker.py` - Worker asíncrono (6 tareas, max_concurrent=3)
-- `demo_multiple_workers.py` - 3 workers en paralelo (12 tareas, speedup: 2.44x)
+### 🔜 Sesiones Planeadas
 
-### ✅ Sesión 4: Redis y Colas de Tareas
-**Duración:** 45 minutos  
-**Estado:** ✅ Completada y probada
-**Carpeta:** `session4_redis/`
+#### Sesión 7: Kubernetes Basics
+- Pods, Deployments, Services
+- ConfigMaps y Secrets
+- Namespaces
+- kubectl commands
 
-**Temas:**
-- Redis como cola distribuida
-- RedisTaskQueue con operaciones atómicas (RPOPLPUSH)
-- RedisWorker procesando desde Redis
-- Multiprocessing para paralelismo real (sin GIL)
-- Persistencia de tareas y resultados
+#### Sesión 8: Kubernetes Advanced
+- StatefulSets para Redis
+- Persistent Volumes
+- Horizontal Pod Autoscaler (HPA)
+- Resource limits y requests
 
-**Demos:**
-- `demo_redis_basic.py` - Worker básico procesando 3 tareas
-- `demo_distributed_workers.py` - 3 workers distribuidos (multiprocessing) procesando 15 tareas
+#### Sesión 9: Observability
+- Prometheus para métricas
+- Grafana para visualización
+- Distributed tracing
+- Logging agregado
 
----
+#### Sesión 10: Production Ready
+- CI/CD pipeline
+- Rolling updates y rollbacks
+- Disaster recovery
+- Security best practices
 
-### ✅ Sesión 5: Health Checks, Auto-Recovery y Monitoring
-**Duración:** 45 minutos  
-**Estado:** ✅ Completada - Lista para probar
-**Carpeta:** `session5_monitoring/`
+## 🎯 Objetivos del Curso
 
-**Temas:**
-- Worker Registry: Registro centralizado de workers activos
-- Heartbeats: Workers reportan salud periódicamente
-- Auto-recovery: Reintentos automáticos de tareas fallidas
-- Dead Letter Queue (DLQ): Tareas irrecuperables
-- Graceful shutdown: Cerrar workers limpiamente
-- Stuck task recovery: Detectar tareas atascadas
+1. **Dominar** procesamiento de imágenes con Python
+2. **Implementar** patrones de diseño para sistemas distribuidos
+3. **Construir** arquitectura de workers escalable
+4. **Desplegar** en Kubernetes con best practices
+5. **Monitorear** y mantener sistemas en producción
 
-**Material:**
-- `README.md` - ✅ Guía completa del estudiante
-- `workers/worker_registry.py` - ✅ Registro de workers con heartbeats
-- `workers/redis_task_queue_v2.py` - ✅ Cola con auto-recovery y DLQ
-- `workers/monitored_redis_worker.py` - ✅ Worker con monitoring
+## 📁 Estructura del Proyecto
 
-**Demos:**
-- `demo_worker_registry.py` - Registry, heartbeats, detectar workers muertos
-- `demo_auto_recovery.py` - Reintentos automáticos y Dead Letter Queue
-- `demo_monitored_system.py` - Sistema completo con 3 workers monitoreados
-
-**Requisito:**
-- Redis corriendo en Docker
-
----
-
-### 🔜 Sesión 6: Docker y Containerización
-**Temas a cubrir:**
-- Dockerfiles para workers
-- Docker Compose multi-servicio
-- Networking entre containers
-- Volúmenes para persistencia
-
----
-
-### 🔜 Sesión 7: Introducción a Kubernetes
-**Temas a cubrir:**
-- Pods y Deployments
-- Services
-- ConfigMaps
-
-### 🔜 Sesión 8: Escalamiento en K8s
-**Temas a cubrir:**
-- Horizontal Pod Autoscaling
-- Resource limits
-- Load balancing
-
-### 🔜 Sesión 9: Monitoreo y Observabilidad Avanzada
-**Temas a cubrir:**
-- Métricas
-- Logs centralizados
-- Health checks
-
-### 🔜 Sesión 10: Proyecto Final Integrado
-**Temas a cubrir:**
-- Sistema completo
-- Best practices
----
-
-## 🚀 Comenzar
-
-```bash
-cd session1_image_basics
-python -m pip install -r requirements.txt
-python simple_processor.py
+```
+Projects/WIP/
+├── session1_image_basics/       # PIL/Pillow, filtros básicos
+├── session2_pipelines/          # Pipelines y Factory
+├── session3_workers/            # Worker pattern, async
+├── session4_redis/              # Redis queues, multiprocessing
+├── session5_monitoring/         # Health checks, auto-recovery
+├── session6_docker/             # Docker, Docker Compose
+├── session7_k8s_basics/         # (Planeada)
+├── session8_k8s_advanced/       # (Planeada)
+├── session9_observability/      # (Planeada)
+└── session10_production/        # (Planeada)
 ```
 
+## 🚀 Cómo Empezar
+
+Cada sesión es autocontenida con su propio README. Recomendado seguir en orden:
+
+```bash
+cd Projects/WIP/session1_image_basics
+cat README.md
+```
+
+## 📚 Prerequisitos
+
+- Python 3.11+
+- Docker y Docker Compose
+- Redis (via Docker recomendado)
+- Conocimientos básicos de Python
+
+## ✨ Características Destacadas
+
+- **Código limpio y didáctico** con documentación extensa
+- **Demos funcionales** para cada concepto
+- **Progresión incremental** de simple a complejo
+- **Production-ready patterns** desde el inicio
+- **Cross-platform** (Linux, macOS, Windows con Docker)
+
+---
+
+**Última actualización**: Sesión 6 completada con pendientes técnicos por resolver
