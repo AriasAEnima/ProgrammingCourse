@@ -3,7 +3,8 @@
 * Put your code with folders and new files with good standards 
 * Add Readme file with curls examples with
     * Create user
-    * Login user
+    * Login user 
+    * SignIn user (default role: client)
     * Post Item (of your topic)
     * Get Items with filters
     * .... 
