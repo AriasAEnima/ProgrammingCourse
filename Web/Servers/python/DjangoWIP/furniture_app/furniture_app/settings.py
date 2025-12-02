@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'furniture_app'
+    'rest_framework',      # 🎨 Django REST Framework - Interfaz HTML bonita
+    'staticpages',         # 📄 Sesión 1: Páginas estáticas
+    'dynamicpages',        # 🎨 Sesión 2: Templates dinámicos + MongoDB
+    'furniture_api',       # 🔌 API REST
 ]
 
 MIDDLEWARE = [
@@ -59,6 +62,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',  # 🔧 Necesario para DRF
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -126,3 +130,32 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 🎨 CONFIGURACIÓN DE DJANGO REST FRAMEWORK
+# =========================================
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # 🎨 Interfaz HTML bonita
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+}
+
+# 🗄️ CONFIGURACIÓN DE MONGODB
+# ============================
+import mongoengine
+
+mongoengine.connect(
+    db='furniture_catalog_db',
+    host='localhost',
+    port=27017
+)
+
+# Configurar redirecciones de autenticación
+LOGIN_REDIRECT_URL = '/dynamic-pages/'
+LOGOUT_REDIRECT_URL = '/dynamic-pages/'
+LOGIN_URL = '/dynamic-pages/login/'

@@ -22,8 +22,8 @@ Un proyecto Django con **páginas estáticas** que demuestre la estructura bási
 
 ### 1.1 Crear el proyecto Django
 ```bash
-django-admin startproject mi_blog
-cd mi_blog
+django-admin startproject furniture_app
+cd furniture_app
 ```
 
 ### 1.2 Crear la app para páginas estáticas
@@ -33,7 +33,7 @@ python manage.py startapp staticpages
 
 ### 1.3 Registrar la app en `settings.py`
 ```python
-# mi_blog/settings.py
+# furniture_app/settings.py
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -77,7 +77,7 @@ def home(request):
                 <a href="/static-pages/contact/">📧 Contact</a>
             </nav>
             
-            <h1>📄 ¡Bienvenido a Django!</h1>
+            <h1>🪑 ¡Bienvenido a Furniture Catalog!</h1>
             <p><strong>¿Qué es contenido estático?</strong></p>
             <ul>
                 <li>✅ HTML completamente fijo</li>
@@ -103,7 +103,7 @@ def about(request):
         <style>body { font-family: Arial; margin: 40px; }</style>
     </head>
     <body>
-        <h1>📋 Acerca de Mi Sitio</h1>
+        <h1>📋 Acerca del Catálogo de Muebles</h1>
         <p>Esta es una página estática creada con Django.</p>
         <p><strong>Características:</strong></p>
         <ul>
@@ -175,7 +175,7 @@ urlpatterns = [
 
 ### 2.3 Configurar URLs principales
 ```python
-# mi_blog/urls.py
+# furniture_app/urls.py
 from django.contrib import admin
 from django.urls import path, include
 
@@ -187,48 +187,43 @@ urlpatterns = [
 
 ---
 
-## 📋 Parte 3: Entender Migraciones (5 minutos)
+## 📋 Parte 3: Configurar MongoDB (5 minutos)
 
-### 3.1 ¿Qué son las migraciones?
-Las **migraciones** son archivos que Django usa para actualizar la base de datos:
+> **📌 Este proyecto usa MongoDB** - NO necesitamos migraciones porque MongoDB es schema-less.
 
+### 3.1 Instalar MongoEngine
 ```bash
-# Ver estado de migraciones
-python manage.py showmigrations
-
-# Crear migraciones (cuando cambies modelos)
-python manage.py makemigrations
-
-# Aplicar migraciones a la base de datos
-python manage.py migrate
+pip install mongoengine
 ```
 
-### 3.2 Aplicar migraciones iniciales
+### 3.2 Configurar conexión en `settings.py`
+```python
+# furniture_app/settings.py
+import mongoengine
+
+# Conexión a MongoDB
+mongoengine.connect(
+    db='furniture_catalog_db',
+    host='localhost',
+    port=27017
+)
+
+# Deshabilitar la base de datos de Django (usamos MongoDB)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
+    }
+}
+```
+
+### 3.3 Verificar que MongoDB está corriendo
 ```bash
-# Aplicar migraciones por defecto de Django
-python manage.py migrate
+# En otra terminal, verificar que MongoDB está activo
+mongosh
+# Debería conectarse sin errores
 ```
 
-**Resultado:** Se crea `db.sqlite3` con tablas de autenticación, sesiones, etc.
-
-### 3.3 Revisar migraciones aplicadas
-```bash
-python manage.py showmigrations
-```
-
-**Salida esperada:**
-```
-admin
- [X] 0001_initial
- [X] 0002_logentry_remove_auto_add
- [X] 0003_logentry_add_action_flag_choices
-auth
- [X] 0001_initial
- [X] 0002_alter_permission_name_max_length
- # ... más migraciones
-staticpages
- (no migrations)
-```
+**Resultado:** Django está conectado a MongoDB y listo para usar.
 
 ---
 
@@ -249,7 +244,7 @@ Si quieres probar desde tu **móvil** o **otros dispositivos**:
 
 1. **Actualizar `settings.py`:**
 ```python
-# mi_blog/settings.py
+# furniture_app/settings.py
 ALLOWED_HOSTS = ['*']  # Permite acceso desde cualquier IP
 ```
 
@@ -280,12 +275,11 @@ http://TU_IP_LOCAL:8000/static-pages/
 ## 📊 Estructura Final del Proyecto
 
 ```
-mi_blog/
+furniture_app/
 ├── manage.py
-├── db.sqlite3                     # Base de datos (creada tras migrate)
-├── mi_blog/
+├── furniture_app/
 │   ├── __init__.py
-│   ├── settings.py               # ✅ staticpages registrada
+│   ├── settings.py               # ✅ staticpages + MongoDB configurado
 │   ├── urls.py                   # ✅ URLs configuradas
 │   ├── wsgi.py
 │   └── asgi.py
@@ -298,7 +292,7 @@ mi_blog/
     ├── models.py                 # (sin usar)
     ├── tests.py
     └── migrations/
-        └── __init__.py           # Sin migraciones (no hay modelos)
+        └── __init__.py           # (sin usar con MongoDB)
 ```
 
 ---
@@ -306,7 +300,7 @@ mi_blog/
 ## 🎯 Conceptos Aprendidos
 
 ### ✅ Estructura de Django
-- **Proyecto** vs **App**: `mi_blog` es el proyecto, `staticpages` es una app
+- **Proyecto** vs **App**: `furniture_app` es el proyecto, `staticpages` es una app
 - **URLs**: Enrutamiento de `/static-pages/` hacia `staticpages.urls`
 - **Vistas**: Funciones que procesan requests y devuelven responses
 
@@ -315,10 +309,10 @@ mi_blog/
 - **Sin base de datos** - contenido que no cambia
 - **Respuesta rápida** - no hay consultas SQL
 
-### ✅ Migraciones
-- **showmigrations**: Ver estado de migraciones
-- **migrate**: Aplicar migraciones a la base de datos
-- **makemigrations**: Crear migraciones (cuando tengas modelos)
+### ✅ MongoDB
+- **No necesita migraciones** - Schema-less
+- **Colecciones automáticas** - Se crean al guardar
+- **mongoengine.connect()**: Configurar conexión
 
 ---
 
