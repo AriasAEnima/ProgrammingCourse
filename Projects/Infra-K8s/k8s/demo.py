@@ -179,6 +179,27 @@ def main():
     else:
         print("⚠️ Timeout esperando métricas, continuando de todos modos...")
     
+    # Auto-configurar HPA para escalado más agresivo
+    print("\n🔧 Auto-configurando HPA para escalado visible...")
+    print("Ajustando CPU target a 15% para que escale más fácilmente...")
+    
+    patch_result = subprocess.run(
+        "kubectl patch hpa worker-hpa --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/metrics/0/resource/target/averageUtilization\", \"value\": 15}]'",
+        shell=True,
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='ignore'
+    )
+    
+    if patch_result.returncode == 0:
+        print("✅ HPA configurado con CPU target = 15%")
+        print("   Esto hará que escale cuando CPU > 15m (muy sensible)")
+    else:
+        print("⚠️ No se pudo ajustar HPA, usando configuración actual")
+    
+    time.sleep(2)
+    
     # Show current metrics
     run_cmd("kubectl get hpa", "📊 Métricas actuales antes del stress test")
     
@@ -251,88 +272,184 @@ def main():
     
     if has_dependencies:
         # Advanced stress test with requests and threading
-        print("🖼️ Enviando 10 tareas pesadas de procesamiento (método avanzado)...")
+        print("🖼️ Enviando MUCHAS tareas pesadas para forzar auto-scaling (método avanzado)...")
+        print("   - Objetivo: Saturar los 2 workers iniciales y forzar escalado")
+        print("   - Tareas: 100 (cada una con 4 imágenes grandes)")
+        print("   - Tiempo estimado: 3-5 minutos\n")
         import requests
         from concurrent.futures import ThreadPoolExecutor
         
-        def send_heavy_task():
+        def send_heavy_task(task_num):
             """Send heavy image processing task"""
             payload = {
-                "filters": ["resize", "blur", "sharpen", "edges"],
+                "filters": ["resize", "blur", "sharpen", "edges", "blur", "sharpen"],  # 6 filtros
                 "filter_params": {
-                    "resize": {"width": 2048, "height": 2048},
-                    "blur": {"radius": 5.0},
-                    "sharpen": {"factor": 2.0}
+                    "resize": {"width": 3072, "height": 3072},  # 3K imágenes
+                    "blur": {"radius": 8.0},  # Más blur
+                    "sharpen": {"factor": 2.5}
                 },
-                "count": 2
+                "count": 4  # 4 imágenes por tarea
             }
             try:
                 response = requests.post(
                     "http://localhost:8000/api/process-batch/distributed/",
                     json=payload,
-                    timeout=10
+                    timeout=15  # Más timeout para tareas pesadas
                 )
                 if response.status_code == 200:
                     task_id = response.json().get('task_id', 'unknown')[:8]
-                    print(f"✅ Heavy task queued: {task_id}")
+                    if task_num % 10 == 0:  # Solo mostrar cada 10 tareas
+                        print(f"✅ Tarea {task_num}: {task_id} encolada")
                     return True
                 else:
-                    print(f"❌ HTTP {response.status_code}: {response.text[:100]}")
+                    print(f"❌ Tarea {task_num}: HTTP {response.status_code}")
                     return False
             except Exception as e:
-                print(f"❌ Task error: {e}")
+                if task_num % 10 == 0:
+                    print(f"⚠️ Tarea {task_num}: {str(e)[:50]}")
                 return False
         
-        # Send multiple heavy tasks to trigger scaling
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            futures = [executor.submit(send_heavy_task) for _ in range(20)]
+        # Send MANY heavy tasks to trigger scaling
+        NUM_TASKS = 100  # 100 tareas pesadas
+        print(f"📤 Enviando {NUM_TASKS} tareas en oleadas...")
+        
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(send_heavy_task, i) for i in range(NUM_TASKS)]
             success_count = sum(1 for f in futures if f.result())
-            print(f"📊 {success_count}/20 tareas pesadas enviadas")
+            print(f"\n📊 {success_count}/{NUM_TASKS} tareas pesadas enviadas correctamente")
+            
+        print(f"\n💡 Con {success_count} tareas pesadas en cola:")
+        print(f"   - Cada worker procesará ~{success_count/2} tareas")
+        print(f"   - Esto debería saturar los 2 workers iniciales")
+        print(f"   - CPU debería subir > 15% → Trigger de auto-scaling")
     else:
         # Fallback stress test using curl
         print("🖼️ Enviando tareas pesadas de procesamiento (método básico con curl)...")
+        print("   Recomendación: Instala 'requests' para mejor stress test")
+        print("   pip install requests")
         success_count = 0
-        for i in range(10):  # Increased for better scaling
+        for i in range(50):  # 50 tareas (antes era 10)
             if send_heavy_task_simple():
                 success_count += 1
-            time.sleep(0.5)  # Faster delivery
-        print(f"📊 {success_count}/10 tareas pesadas enviadas via curl")
+            if i % 10 == 0:
+                print(f"   Progreso: {i}/50 tareas enviadas...")
+            time.sleep(0.3)  # Más rápido
+        print(f"📊 {success_count}/50 tareas pesadas enviadas via curl")
     
     print("\n8️⃣ Verificando auto-scaling (escalado + descalado)...")
-    for i in range(8):  # Aumentamos a 8 checks para ver el descalado
-        print(f"⏱️ Check {i+1}/8:")
-        run_cmd("kubectl get hpa", f"Check {i+1}/8 - Auto-scaling status")
+    print("Monitoreando durante 4 minutos (~16 checks de 15s)")
+    print("Fases esperadas:")
+    print("  📈 0-1 min: Escalado inicial (2 → 4+ pods)")
+    print("  ⚡ 1-2 min: Escalado máximo bajo carga")
+    print("  ⏱️  2-3 min: Estabilización mientras procesa")
+    print("  📉 3-4 min: Descalado gradual al terminar tareas\n")
+    
+    for i in range(16):  # 16 checks = 4 minutos
+        elapsed_min = (i * 15) / 60
+        print(f"\n{'='*60}")
+        print(f"⏱️  Check {i+1}/16 ({elapsed_min:.1f} min)")
+        print('='*60)
+        
+        # Mostrar HPA status
+        run_cmd("kubectl get hpa worker-hpa", show_header=False)
+        
+        # Mostrar métricas de CPU
+        cpu_result = subprocess.run(
+            "kubectl top pods -l app=image-worker --no-headers",
+            shell=True,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='ignore'
+        )
+        
+        if cpu_result.stdout.strip():
+            print("\n📊 CPU por pod:")
+            for line in cpu_result.stdout.strip().split('\n'):
+                parts = line.split()
+                if len(parts) >= 2:
+                    pod_name = parts[0].split('-')[-1][:8]  # Últimos 8 chars
+                    cpu = parts[1]
+                    mem = parts[2] if len(parts) > 2 else 'N/A'
+                    print(f"   Worker-{pod_name}: CPU={cpu:>6}, MEM={mem:>8}")
         
         # Cross-platform pod count
         is_windows = platform.system() == "Windows"
         if is_windows:
-            # Windows doesn't have wc -l, use findstr
             pods_count = subprocess.run("kubectl get pods -l app=image-worker --no-headers | find /c /v \"\"", shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore')
         else:
-            # Unix/Linux/Mac has wc -l
             pods_count = subprocess.run("kubectl get pods -l app=image-worker --no-headers | wc -l", shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore')
         
         current_pods = int(pods_count.stdout.strip() or 0)
-        print(f"  Pods workers: {current_pods}")
         
-        # Explicar qué está pasando
-        if i < 3:
-            print("  📈 Fase: Escalado - Debería ver aumento de pods")
-        elif i < 6:
-            print("  ⏱️ Fase: Estabilización - CPU debería bajar")
+        # Contar pods Running
+        running_result = subprocess.run(
+            "kubectl get pods -l app=image-worker --no-headers",
+            shell=True,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='ignore'
+        )
+        running_pods = len([l for l in running_result.stdout.split('\n') if 'Running' in l])
+        
+        print(f"\n🎯 Réplicas: {current_pods} total, {running_pods} Running")
+        
+        # Explicar qué está pasando según la fase
+        if i < 4:
+            print(f"📈 Fase: ESCALADO INICIAL")
+            print(f"   Esperado: Ver aumento de pods (2 → 4+)")
+            print(f"   Razón: Alta carga CPU por tareas en cola")
+        elif i < 8:
+            print(f"⚡ Fase: CARGA MÁXIMA")
+            print(f"   Esperado: Pods estables en máximo o cerca")
+            print(f"   Razón: Procesando tareas activamente")
+        elif i < 12:
+            print(f"⏱️  Fase: ESTABILIZACIÓN")
+            print(f"   Esperado: CPU empieza a bajar")
+            print(f"   Razón: Menos tareas en cola")
         else:
-            print("  📉 Fase: Descalado - Debería ver reducción de pods")
+            print(f"📉 Fase: DESCALADO")
+            print(f"   Esperado: Reducción gradual de pods")
+            print(f"   Razón: Carga baja, volviendo a mínimo")
         
-        time.sleep(15)  # Aumentamos un poco el tiempo entre checks
+        time.sleep(15)  # Check cada 15 segundos
     
     # Final status
-    run_cmd("kubectl get hpa", "9️⃣ Final HPA Status")
-    run_cmd("kubectl get pods", "Final Pod Count")
-    run_cmd("kubectl describe hpa worker-hpa", "HPA Details")
+    print("\n" + "="*60)
+    print("📊 ESTADO FINAL DEL SISTEMA")
+    print("="*60)
+    
+    run_cmd("kubectl get hpa worker-hpa", "HPA Final Status")
+    run_cmd("kubectl get pods -l app=image-worker", "Workers Final State")
+    
+    print("\n📈 Historial de eventos de auto-scaling:")
+    events_result = subprocess.run(
+        "kubectl describe hpa worker-hpa | grep -A 20 Events",
+        shell=True,
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='ignore'
+    )
+    if events_result.stdout and "Events:" in events_result.stdout:
+        print(events_result.stdout)
+    else:
+        print("No hay eventos de scaling registrados")
+        print("Posibles razones:")
+        print("  - Carga insuficiente para trigger")
+        print("  - Metrics server no disponible")
+        print("  - HPA configurado con threshold muy alto")
     
     print("\n" + "="*60)
     print("✅ DEMO COMPLETADO")
     print("="*60)
+    print("\n📋 RESUMEN:")
+    print("  • Cluster verificado")
+    print("  • Redis, API y Workers desplegados")
+    print("  • HPA auto-configurado (CPU target: 15%)")
+    print("  • 100 tareas pesadas enviadas")
+    print("  • Auto-scaling monitoreado durante 4 minutos")
     print("")
     print("💡 PARA STRESS TEST ADICIONAL:")
     print("   python stress_test.py 5 15  # 5 minutos, 15 tareas por batch")
