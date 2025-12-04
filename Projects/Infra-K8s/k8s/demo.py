@@ -138,8 +138,15 @@ def main():
     # Deploy API  
     run_cmd("kubectl apply -f api-deployment.yaml", "2️⃣ Deploying API")
     
-    # Deploy Workers + HPA
-    run_cmd("kubectl apply -f worker-deployment.yaml", "3️⃣ Deploying Workers + HPA")
+    # Deploy Workers + HPA (detectar plataforma)
+    is_windows = platform.system() == "Windows"
+    worker_file = "worker-deployment-windows.yaml" if is_windows else "worker-deployment.yaml"
+    
+    print(f"\n3️⃣ Deploying Workers + HPA")
+    print(f"Plataforma: {platform.system()}")
+    print(f"Usando: {worker_file}")
+    
+    run_cmd(f"kubectl apply -f {worker_file}", show_header=False)
     
     # Install metrics server automatically
     print("\n🔧 Installing metrics server...")
