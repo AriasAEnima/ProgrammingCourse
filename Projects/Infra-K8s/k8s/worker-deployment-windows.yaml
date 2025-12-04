@@ -25,7 +25,7 @@ spec:
           value: "6379"
         volumeMounts:
         - name: static-images
-          mountPath: /app/static
+          mountPath: /app/static           # Monta TODO static/
         - name: processed-output
           mountPath: /app/static/processed
         resources:
@@ -39,6 +39,7 @@ spec:
       - name: static-images
         hostPath:
           # Windows: Docker Desktop automáticamente monta C:\Users
+          # Monta TODO el directorio static/ (incluye images/ y processed/)
           path: /run/desktop/mnt/host/c/Users/julia/OneDrive/Documents/Cursos/ProgrammingCourse/Chapter-Threads/Projects/static
           type: Directory
       - name: processed-output
