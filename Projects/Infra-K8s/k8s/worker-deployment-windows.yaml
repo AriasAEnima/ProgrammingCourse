@@ -39,12 +39,12 @@ spec:
       - name: static-images
         hostPath:
           # Windows: Docker Desktop automáticamente monta C:\Users
-          # Monta TODO el directorio static/ (incluye images/ y processed/)
-          path: /run/desktop/mnt/host/c/Users/julia/OneDrive/Documents/Cursos/ProgrammingCourse/Chapter-Threads/Projects/static
+          # RUTA CORRECTA: Projects/Infra-K8s/static (NO Chapter-Threads)
+          path: /run/desktop/mnt/host/c/Users/julia/OneDrive/Documents/Cursos/ProgrammingCourse/Projects/Infra-K8s/static
           type: Directory
       - name: processed-output
         hostPath:
-          path: /run/desktop/mnt/host/c/Users/julia/OneDrive/Documents/Cursos/ProgrammingCourse/Chapter-Threads/Projects/static/processed
+          path: /run/desktop/mnt/host/c/Users/julia/OneDrive/Documents/Cursos/ProgrammingCourse/Projects/Infra-K8s/static/processed
           type: DirectoryOrCreate
 ---
 apiVersion: autoscaling/v2
