@@ -6,9 +6,7 @@ from datetime import timedelta
 
 class Config:
     """Configuración base"""
-    # Claves secretas
-    SECRET_KEY = os.getenv('SECRET_KEY', 'tu-clave-super-secreta-cambiar-en-produccion')
-    
+    # Claves secretas    
     # JWT Configuration
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'tu-clave-super-secreta-cambiar-en-produccion')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
