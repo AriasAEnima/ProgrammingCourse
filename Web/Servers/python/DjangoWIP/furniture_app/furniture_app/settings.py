@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,7 +25,7 @@ SECRET_KEY = 'django-insecure-l&7cvz#a)p^7*1td-x(yxb$+bp)784_p1xl*wg43(ekwk3ge*5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -150,7 +151,7 @@ import mongoengine
 
 mongoengine.connect(
     db='furniture_catalog_db',
-    host='localhost',
+    host=os.getenv('MONGO_HOST', 'localhost'),
     port=27017
 )
 
