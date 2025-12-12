@@ -12,5 +12,6 @@ EXPOSE 8000
 
 ENV PYTHONPATH=/app
 ENV MONGO_HOST='host.docker.internal'
+ENV MONGO_DB='furniture_catalog_db'
 
 CMD ["python", "furniture_app/manage.py", "runserver", "0.0.0.0:8000"]

@@ -1,0 +1,44 @@
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: furniture-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: furniture_database_compose
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - furniture-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django-api:
+    build:
+      context: ./DjangoServer
+      dockerfile: Dockerfile
+    container_name: furniture-django-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_DB=furniture_database_compose
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - furniture-network
+
+networks:
+  furniture-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+

@@ -160,7 +160,7 @@ JWT_REFRESH_TOKEN_LIFETIME = timedelta(days=1)
 import mongoengine
 
 mongoengine.connect(
-    db='furniture_catalog_db',
+    db=os.getenv('MONGO_DB', 'furniture_catalog_db'),
     host=os.getenv('MONGO_HOST', 'localhost'),
     port=27017
 )
