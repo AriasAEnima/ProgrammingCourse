@@ -7,6 +7,9 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     
+    # 🔐 AUTENTICACIÓN JWT
+    path('api/auth/', include('auth_api.urls')),
+    
     # 📄 CONTENIDO ESTÁTICO (Sesión 1)
     path('static-pages/', include('staticpages.urls')),
     

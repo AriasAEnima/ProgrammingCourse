@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'staticpages',         # 📄 Sesión 1: Páginas estáticas
     'dynamicpages',        # 🎨 Sesión 2: Templates dinámicos + MongoDB
     'furniture_api',       # 🔌 API REST
+    'auth_api',            # 🔐 Autenticación JWT (PyJWT directo)
 ]
 
 MIDDLEWARE = [
@@ -144,6 +145,15 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
     ],
 }
+
+# 🔐 CONFIGURACIÓN DE JWT
+# =======================
+# Usamos PyJWT directamente sin djangorestframework-simplejwt
+# Los tokens se generan y validan manualmente en auth_api/views.py y auth_api/utils.py
+from datetime import timedelta
+
+JWT_ACCESS_TOKEN_LIFETIME = timedelta(hours=1)
+JWT_REFRESH_TOKEN_LIFETIME = timedelta(days=1)
 
 # 🗄️ CONFIGURACIÓN DE MONGODB
 # ============================

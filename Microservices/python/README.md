@@ -1,6 +1,6 @@
-# 🐳 Sistema de Microservicios - Notificaciones de Mesas
+# 🐳 Sistema de Microservicios - Notificaciones de Muebles
 
-Sistema de microservicios con Django, WebSocket, MongoDB y Consumer en tiempo real.
+Sistema de microservicios con Django, WebSocket, MongoDB y Consumer en tiempo real para gestión de catálogo de muebles.
 
 ## 🚀 Iniciar Sistema
 
@@ -15,13 +15,24 @@ docker-compose up --build -d
 ## 🧪 Probar Sistema
 
 ```bash
-# Crear mesa
-curl -X POST http://localhost:8000/api/v1/desk/ \
+# Crear mueble
+curl -X POST http://localhost:8000/api/furniture/create/ \
   -H "Content-Type: application/json" \
-  -d '{"name": "Mesa Test", "width": 100, "height": 200}'
+  -d '{"nombre": "Mesa de Roble", "descripcion": "Mesa elegante de comedor", "altura": 75, "ancho": 120, "material": "roble", "autor_username": "Juan"}'
 
-# Listar mesas
-curl http://localhost:8000/api/v1/desk/
+# Listar muebles
+curl http://localhost:8000/api/furniture/
+
+# Obtener un mueble específico
+curl http://localhost:8000/api/furniture/FURNITURE_ID/
+
+# Actualizar mueble
+curl -X PUT http://localhost:8000/api/furniture/FURNITURE_ID/update/ \
+  -H "Content-Type: application/json" \
+  -d '{"altura": 80, "material": "pino"}'
+
+# Eliminar mueble
+curl -X DELETE http://localhost:8000/api/furniture/FURNITURE_ID/
 ```
 
 **Resultado esperado:** Verás las notificaciones en tiempo real en los logs del consumer 🎉
@@ -53,10 +64,10 @@ docker-compose down -v
 
 | Servicio | Puerto | Descripción |
 |----------|--------|-------------|
-| **Django API** | 8000 | REST API para CRUD de mesas |
+| **Django API** | 8000 | REST API para CRUD de muebles |
 | **WebSocket Server** | 8765 | Distribuye notificaciones en tiempo real |
 | **Consumer** | - | Cliente que muestra notificaciones |
-| **MongoDB** | 27017 | Base de datos |
+| **MongoDB** | 27017 | Base de datos de muebles |
 
 ## 🔧 Comandos Útiles
 

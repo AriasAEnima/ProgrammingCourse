@@ -2,22 +2,46 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from dynamicpages.models import FurnitureItem
+from auth_api.utils import jwt_required, admin_required
+from typing import Dict, Any
 
 @api_view(['GET','DELETE'])
-def handle_furniture(request, id):
-    if  request.method == "GET":
+@jwt_required
+def handle_furniture(request, id: str) -> Response:
+    """
+    🪑 Maneja peticiones GET y DELETE para un mueble específico
+    
+    GET - Obtiene información de un mueble por ID
+    DELETE - Elimina un mueble del catálogo (requiere autenticación)
+    
+    Args:
+        request: Request HTTP con JWT token
+        id: ID del mueble en MongoDB
+        
+    Returns:
+        Response con datos del mueble o mensaje de error
+    """
+    if request.method == "GET":
         return get_furniture(request, id)
     else:
-        return delete_furniture(request,id)
+        return delete_furniture(request, id)
                 
-def get_furniture(request, id):
+def get_furniture(request, id: str) -> Response:
     """
     🪑 GET - Obtener un mueble por ID desde MongoDB
     
     Ejemplo: GET /api/furniture/123/
+    Headers: Authorization: Bearer <token>
+    
+    Args:
+        request: Request HTTP
+        id: ID del mueble
+        
+    Returns:
+        Response con datos del mueble o error 404
     """
     try:
-        mueble = FurnitureItem.objects.get(id=id)
+        mueble: FurnitureItem = FurnitureItem.objects.get(id=id)
         
         return Response({
             "id": str(mueble.id),
@@ -37,25 +61,34 @@ def get_furniture(request, id):
 
 
 @api_view(['POST'])
-def post_furniture(request):
+@jwt_required
+def post_furniture(request) -> Response:
     """
-    🪑 POST - Crear un nuevo mueble en MongoDB
+    🪑 POST - Crear un nuevo mueble en MongoDB (requiere autenticación)
     
-    Ejemplo: POST /api/furniture/
+    El autor se obtiene automáticamente del JWT token
+    
+    Ejemplo: POST /api/furniture/create/
+    Headers: Authorization: Bearer <token>
     Body: {
-        "nombre": "Mesa",
-        "descripcion": "Mesa de comedor",
+        "nombre": "Mesa de Roble",
+        "descripcion": "Mesa de comedor elegante",
         "altura": 75,
         "ancho": 120,
-        "material": "roble",
-        "autor_username": "Juan"
+        "material": "roble"
     }
+    
+    Args:
+        request: Request HTTP con JWT token y datos del mueble
+        
+    Returns:
+        Response con el mueble creado o mensaje de error
     """
-    data = request.data
+    data: Dict[str, Any] = request.data
     
     # Validar campos requeridos
-    required_fields = ['nombre', 'descripcion', 'altura', 'ancho', 'material']
-    missing_fields = [field for field in required_fields if field not in data]
+    required_fields: list[str] = ['nombre', 'descripcion', 'altura', 'ancho', 'material']
+    missing_fields: list[str] = [field for field in required_fields if field not in data]
     
     if missing_fields:
         return Response({
@@ -63,14 +96,17 @@ def post_furniture(request):
         }, status=status.HTTP_400_BAD_REQUEST)
     
     try:
+        # Obtener el username del usuario autenticado desde el JWT token
+        autor_username: str = request.user_info['username']
+        
         # Crear mueble en MongoDB
-        mueble = FurnitureItem(
+        mueble: FurnitureItem = FurnitureItem(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             altura=int(data['altura']),
             ancho=int(data['ancho']),
             material=data['material'],
-            autor_username=data.get('autor_username', 'Anónimo'),
+            autor_username=autor_username,  # 🔐 Obtenido del token JWT
             publicado=data.get('publicado', True)
         )
         mueble.save()
@@ -92,16 +128,35 @@ def post_furniture(request):
 
 
 @api_view(['PUT'])
-def put_furniture(request, id):
+@jwt_required
+def put_furniture(request, id: str) -> Response:
     """
-    🪑 PUT - Actualizar un mueble existente en MongoDB
+    🪑 PUT - Actualizar un mueble existente en MongoDB (requiere autenticación)
     
     Ejemplo: PUT /api/furniture/123/update/
-    Body: {"altura": 80, "ancho": 150}
+    Headers: Authorization: Bearer <token>
+    Body: {"altura": 80, "ancho": 150, "material": "pino"}
+    
+    Args:
+        request: Request HTTP con JWT token y datos a actualizar
+        id: ID del mueble en MongoDB
+        
+    Returns:
+        Response con el mueble actualizado o mensaje de error
     """
     try:
-        mueble = FurnitureItem.objects.get(id=id)
-        data = request.data
+        mueble: FurnitureItem = FurnitureItem.objects.get(id=id)
+        data: Dict[str, Any] = request.data
+        
+        # Verificar que el usuario autenticado sea el autor o admin
+        autor_username: str = request.user_info['username']
+        user_role: str = request.user_info['role']
+        
+        if mueble.autor_username != autor_username and user_role != 'admin':
+            return Response({
+                "error": "Acceso denegado",
+                "message": "Solo el autor o un administrador puede modificar este mueble"
+            }, status=status.HTTP_403_FORBIDDEN)
         
         # Actualizar solo los campos proporcionados
         if 'nombre' in data:
@@ -138,15 +193,36 @@ def put_furniture(request, id):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-def delete_furniture(request, id):
+def delete_furniture(request, id: str) -> Response:
     """
-    🪑 DELETE - Eliminar un mueble de MongoDB
+    🪑 DELETE - Eliminar un mueble de MongoDB (requiere autenticación)
+    
+    Solo el autor o un administrador puede eliminar el mueble
     
     Ejemplo: DELETE /api/furniture/123/
+    Headers: Authorization: Bearer <token>
+    
+    Args:
+        request: Request HTTP con JWT token
+        id: ID del mueble en MongoDB
+        
+    Returns:
+        Response con mensaje de éxito o error 404
     """
     try:
-        mueble = FurnitureItem.objects.get(id=id)
-        nombre = mueble.nombre
+        mueble: FurnitureItem = FurnitureItem.objects.get(id=id)
+        
+        # Verificar que el usuario autenticado sea el autor o admin
+        autor_username: str = request.user_info['username']
+        user_role: str = request.user_info['role']
+        
+        if mueble.autor_username != autor_username and user_role != 'admin':
+            return Response({
+                "error": "Acceso denegado",
+                "message": "Solo el autor o un administrador puede eliminar este mueble"
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        nombre: str = mueble.nombre
         mueble.delete()
         
         return Response({
@@ -159,15 +235,23 @@ def delete_furniture(request, id):
 
 
 @api_view(['GET'])
-def list_furniture(request):
+@jwt_required
+def list_furniture(request) -> Response:
     """
-    🪑 GET - Listar todos los muebles de MongoDB
+    🪑 GET - Listar todos los muebles publicados de MongoDB (requiere autenticación)
     
-    Ejemplo: GET /api/furniture/list/
+    Ejemplo: GET /api/furniture/
+    Headers: Authorization: Bearer <token>
+    
+    Args:
+        request: Request HTTP con JWT token
+        
+    Returns:
+        Response con lista de muebles ordenados por fecha de creación
     """
     muebles = FurnitureItem.objects.filter(publicado=True).order_by('-fecha_creacion')
     
-    data = [{
+    data: list[Dict[str, Any]] = [{
         "id": str(m.id),
         "nombre": m.nombre,
         "descripcion": m.descripcion,
