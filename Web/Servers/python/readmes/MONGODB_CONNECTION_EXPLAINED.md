@@ -85,7 +85,7 @@ docker network create desk-network
 docker run -d --name mongodb-app --network desk-network desk-mongodb
 
 # 3. Iniciar Django (apunta al nombre "mongodb")
-docker run -p 8000:8000 --network desk-network  -e MONGODB_HOST=mongodb-app desk-api
+docker run -p 8000:8000 --network desk-network  -e MONGO_HOST=mongodb-app desk-api
 ```
 
 ---
