@@ -1,12 +1,13 @@
 import threading
 import time
 import random 
+
 class Operation:
     
     def __init__(self,elements):
         self.elements = elements
     
-    def operate(self, f,results,message="No estoy en un thread"):
+    def operate(self, f, results, message="No estoy en un thread"):
         print("Start",message)
         ans = f(self.elements)
         print("Finished task", message)

@@ -178,6 +178,7 @@ def demonstrate_list_race_condition():
     print(f"   💥 Obtenido: {actual_total} items")
     print(f"   ❌ Diferencia: {expected_total - actual_total}")
     print(f"   ⏱️ Tiempo: {end_time - start_time:.2f} segundos")
+    print(f"    Items : {shared_list[:4]}")
     
     if actual_total != expected_total:
         print(f"\n⚠️ ¡RACE CONDITION EN LISTA DETECTADA!")
@@ -198,7 +199,7 @@ class UnsafeBankAccount:
     
     def deposit(self, amount: float, thread_id: int):
         """⚠️ PELIGROSO: Depósito sin protección"""
-        print(f"💰 Thread {thread_id}: Depositando ${amount}")
+        print(f"💰 Thread deposit fn {thread_id}: Depositando ${amount}")
         
         # ⚠️ RACE CONDITION: Lectura y escritura no atómica
         current_balance = self.balance
@@ -223,7 +224,7 @@ class UnsafeBankAccount:
     
     def withdraw(self, amount: float, thread_id: int):
         """⚠️ PELIGROSO: Retiro sin protección"""
-        print(f"💸 Thread {thread_id}: Retirando ${amount}")
+        print(f"💸 Thread withdraw {thread_id}: Retirando ${amount}")
         
         # ⚠️ RACE CONDITION: Verificación y modificación no atómica
         current_balance = self.balance
