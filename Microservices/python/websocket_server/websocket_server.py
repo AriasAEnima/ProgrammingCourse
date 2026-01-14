@@ -13,8 +13,9 @@ from typing import Set, Dict, Any
 from websockets.server import WebSocketServerProtocol
 
 # Configuración de logging
+# Fatal -> Critical -> Error -> Warning -> Info -> Debug
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)

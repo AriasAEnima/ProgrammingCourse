@@ -48,6 +48,7 @@ async def send_websocket_notification_async(
                 "type": notification_type,
                 "furniture": furniture_data
             }
+            # Solo "hablo"
             await websocket.send(json.dumps(message))
             logger.info(f"✅ Notificación WebSocket enviada: {notification_type} - {furniture_data.get('nombre', 'N/A')}")
             return True

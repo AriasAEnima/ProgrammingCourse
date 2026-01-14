@@ -47,7 +47,7 @@ class FurnitureNotificationConsumer:
             async with websockets.connect(self.websocket_url) as websocket:
                 self.is_running = True
                 print("✅ Conectado al servidor WebSocket")
-                
+                # Solo "escucho"
                 # Escuchar mensajes continuamente
                 async for message in websocket:
                     await self.process_message(message)

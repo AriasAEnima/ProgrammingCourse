@@ -48,6 +48,9 @@ docker-compose logs -f consumer
 docker-compose logs -f django-api
 docker-compose logs -f websocket-server
 docker-compose logs -f mongo
+
+docker-compose exec django-api python manage.py init_users
+
 ```
 
 ## 🛑 Detener Sistema
