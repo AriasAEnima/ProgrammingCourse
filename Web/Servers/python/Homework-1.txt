@@ -15,7 +15,7 @@ https://desktop.github.com/download/
 https://github.com/AriasAEnima/ProgrammingCourse
 
 
-- Create a public repository for this course (no your name)
+- Create a new public repository for this course (no your name)
 https://www.youtube.com/watch?v=-RZ03WHqkaY
 
 
