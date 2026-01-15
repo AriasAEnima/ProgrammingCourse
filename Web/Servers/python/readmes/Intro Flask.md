@@ -2,11 +2,14 @@
 
 ## HTTP 
 
-Protocolo Hypertext Transfer Protocol 
- * HTTP 
-    * 1.2 
- * HTTPS 
-    * 3 .. 
+Protocolo Hypertext Transfer Protocol , HTTP HTTPS
+
+
+* Request & Response
+   * Status
+   * Headers
+   * Verb - Method
+   * Body (opcional)
 
 ## Status codes
 
@@ -34,6 +37,13 @@ Error por parte del servidor
 ## URI
 
 ![alt text](image.png)
+
+## Verb - Method
+
+* GET 
+* POST
+* PUT
+* DELETE
 
 ### Path param
 Cuando parte de la URI es una variable

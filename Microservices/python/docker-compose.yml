@@ -56,11 +56,11 @@ services:
       - ./DjangoServer/furniture_app:/app
 
   # WebSocket Consumer (Cliente que muestra notificaciones)
-  consumer:
+  consumer-1:
     build:
       context: ./websocket_consumer
       dockerfile: Dockerfile
-    container_name: furniture-consumer
+    container_name: furniture-consumer-1
     restart: unless-stopped
     environment:
       - WEBSOCKET_URL=ws://websocket-server:8765
@@ -70,6 +70,22 @@ services:
       - furniture-network
     stdin_open: true
     tty: true
+  
+  consumer-2:
+    build:
+      context: ./websocket_consumer
+      dockerfile: Dockerfile
+    container_name: furniture-consumer-2
+    restart: unless-stopped
+    environment:
+      - WEBSOCKET_URL=ws://websocket-server:8765
+    depends_on:
+      - websocket-server
+    networks:
+      - furniture-network
+    stdin_open: true
+    tty: true
+
 
 networks:
   furniture-network:
