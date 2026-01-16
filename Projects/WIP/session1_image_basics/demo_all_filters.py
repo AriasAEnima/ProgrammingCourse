@@ -17,7 +17,7 @@ Es útil para:
 import os
 import time
 from PIL import Image
-from filters import BlurFilter, BrightnessFilter, EdgesFilter, GrayScaleFilter
+from filters import BlurFilter, BrightnessFilter, EdgesFilter, GrayScaleFilter, BaseFilter
 
 
 def ensure_directory(path):
@@ -32,7 +32,7 @@ def ensure_directory(path):
         print(f"   📁 Directorio '{path}/' creado")
 
 
-def process_with_filter(image, filter_obj, output_path):
+def process_with_filter(image , filter_obj : BaseFilter, output_path):
     """
     Procesa una imagen con un filtro y mide el tiempo.
     
@@ -64,7 +64,7 @@ def main():
     print("=" * 60)
     
     # Configuración
-    input_path = "images/sample_4k.jpg"
+    input_path = "images/Clocktower_Panorama_20080622_20mb.jpg"
     output_dir = "output"
     
     # Verificar que la imagen existe

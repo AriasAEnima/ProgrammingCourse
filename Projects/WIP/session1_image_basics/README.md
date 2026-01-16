@@ -58,7 +58,9 @@ session1_image_basics/
 ```bash
 # Crear entorno virtual (recomendado)
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+source venv/bin/activate  
+# En Windows: 
+venv\Scripts\activate
 
 # Instalar dependencias
 pip install -r requirements.txt
