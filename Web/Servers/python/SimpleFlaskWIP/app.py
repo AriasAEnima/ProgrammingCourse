@@ -1,5 +1,7 @@
 from flask import Flask, request
-
+import uuid
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -30,23 +32,111 @@ def data(name):
         phase = phase.upper()
     return "<h1>" + phase + "</h1>"
 
-pets = {"Tito": {"especie": "Hamster", "Edad": 2},
-        "Lorenzo": {"especie": "Gato", "Edad": 8},
-        "Caramelo": {"especie": "Perro", "Edad": 7}}
+furnitures = { "1": {"name": "Mesa Redonda", "width": 150 , "depth": 150 , "heigh": 150, "price": 110000},
+        "2": {"name": "Mesa Rectangular", "width": 150 , "depth": 60 , "heigh": 120, "price": 120000},
+        "3": {"name": "Silla triangular", "width": 85 , "depth": 65 , "heigh": 130, "price": 60000} }
 
-# Filtrar por especie
-@app.route('/pet/<string:name>')
-def get_pets(name):
-    if name in pets:
-        return pets[name], 200
+
+@app.route('/api/furniture/<string:id>/',methods = ["GET", "DELETE"])
+def get_furniture(id):   
+    print(f"METHOD {request.method}")
+    if request.method == "GET":
+        if id in furnitures:
+            return furnitures[id], 200
+        else:
+            return {"messsage": "forniture with "+id+" not found"}, 404
     else:
-        return {"message": "Pet not found"}, 404
+        if id in furnitures:
+            element = furnitures[id]
+            del furnitures[id]
+            return element , 200
+        else:
+            return {}, 204
+    
+@app.route('/api/furnitures/')
+def get_furnitures(): 
+    width = request.args.get("width",0)
+    heigh =  request.args.get("heigh",0)   
+    filtered = list(filter(lambda key : furnitures[key]["width"] >= int(width) 
+                           and furnitures[key]["heigh"] >= int(heigh) , furnitures))
+    return list(map(lambda k: furnitures[k], filtered))
 
-@app.route('/large-process/')
-def get_pets():
-    # ....
-    return {"message": "request accepted"}, 201
+@app.route('/api/furniture/', methods = ["POST"])
+def post_furnitures():
+    body = request.json
+    copy = body.copy()
+    new_id = body["id"]
+    if new_id in furnitures:
+        return {"message": "Fornture with id "+new_id + " already exist" }, 409    
+    else:
+        del body["id"]
+        furnitures[new_id] = body   
+        return copy, 201
 
+@app.route('/api/furniture/<string:id>/', methods=["PATCH"])
+def put_furniture(id):
+    body = request.json
+    price = body.get("price")
+    name = body.get("name")
+    if id in furnitures:
+        if price != None:
+            furnitures[id]["price"] = price
+        if name != None:
+            furnitures[id]["name"] = name
+        return furnitures[id], 200
+    else:
+        return {"messsage": "forniture with "+id+" not found"}, 404
+
+users = [
+          
+        ]
+
+def get_users_by_username(username):
+    return list(filter(lambda u: u["username"]== username, users))
+
+@app.route('/api/signIn', methods= ['POST'])
+def sign_in():
+    if not request.json or 'username' not in request.json or 'password' not in request.json:
+        return { 'error': 'Datos inválidos', 
+                'message': 'Se requieren username y password'}, 400
+    else:
+        username = request.json['username']
+        password = request.json['password']
+        if len(get_users_by_username(username) ) >0:
+            return {
+            'error': 'Datos inválidos',
+            'message': 'el usuario ya existe'}, 400
+        else:
+            user_id = 'user-'+str(uuid.uuid4())
+            new_user = {
+                'user_id': user_id,
+                'username': username,
+                'password_hash': generate_password_hash(password),
+                'created_at': datetime.now()
+            }
+            users.append(new_user)
+            return { 'username': username, 'user_id': user_id,}, 201
+        
+@app.route('/api/login', methods= ['POST'])
+def log_in():
+    if not request.json or 'username' not in request.json or 'password' not in request.json:
+        return { 'error': 'Datos inválidos', 
+                'message': 'Se requieren username y password'}, 400
+    else:
+        username = request.json['username']
+        body_password = request.json['password']
+        if len(get_users_by_username(username) ) == 0:
+            return {
+            'error': 'Datos inválidos',
+            'message': 'el usuario no existe'}, 400
+        else:
+            user = get_users_by_username(username)[0]
+            user_password = user["password_hash"]
+            if check_password_hash(user_password, body_password):
+                return { 'message': "login correcto"}, 200
+            else:
+                 return { 'message': "contraseña incorrecta"}, 401
+            
 if __name__ == '__main__':
     app.run(debug=True,
             port=8002, 

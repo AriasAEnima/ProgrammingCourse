@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Images (too large for git)
+output/*.jpg
+output/*.png
+output/*.jpeg
+images/*.jpg
+images/*.png
+images/*.jpeg
+
+# Keep directory structure
+!output/.gitkeep
+!images/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
