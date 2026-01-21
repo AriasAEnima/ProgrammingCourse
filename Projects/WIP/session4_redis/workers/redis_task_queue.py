@@ -131,6 +131,7 @@ class RedisTaskQueue:
         
         # 2. Añadir a la cola de pendientes (RPUSH = añadir al final)
         pipe.rpush(self.pending_key, task_id)
+        #[ id, id , id , id , id]
         
         pipe.execute()
         

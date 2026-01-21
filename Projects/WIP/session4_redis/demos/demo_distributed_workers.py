@@ -58,10 +58,16 @@ def main():
     print("=" * 70)
     
     # Verificar imagen
-    image_path = "images/sample.jpg"
-    if not os.path.exists(image_path):
-        print(f"❌ No se encontró: {image_path}")
-        return
+    image_path1 = "images/sample.jpg"
+    image_path2 = "images/sample2.jpg"
+    image_path3 = "images/sample2.jpg"
+    
+    images = [image_path1, image_path2, image_path3]
+    
+    for img_path in images:
+        if not os.path.exists(img_path):
+            print(f"❌ No se encontró: {img_path}")
+            return
     
     os.makedirs("output", exist_ok=True)
     
@@ -99,10 +105,13 @@ def main():
     print("-" * 70)
     
     num_tasks = 15
+    
     for i in range(1, num_tasks + 1):
+        target_img = (i - 1)%3
+        
         task_id = queue.add_task({
             'name': f'Task {i}',
-            'image_path': image_path,
+            'image_path': images[target_img],
             'output_path': f'output/distributed_task{i:02d}.jpg'
         })
         print(f"✅ Tarea {i:2d} añadida: {task_id}")
@@ -119,7 +128,7 @@ def main():
     print("(Cada worker corre en su propio proceso, simulando distribución)")
     print("-" * 70)
     
-    num_workers = 3
+    num_workers = 10
     processes = []
     
     start_time = time.time()

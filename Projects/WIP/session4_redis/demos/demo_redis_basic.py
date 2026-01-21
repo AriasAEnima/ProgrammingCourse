@@ -17,7 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from workers import RedisTaskQueue, RedisWorker
 from core import FilterPipeline
-from filters import BlurFilter, BrightnessFilter
+from filters import BlurFilter, BrightnessFilter, GrayscaleFilter
 
 
 def main():
@@ -26,9 +26,15 @@ def main():
     
     # Verificar imagen
     image_path = "images/sample.jpg"
-    if not os.path.exists(image_path):
-        print(f"❌ No se encontró: {image_path}")
-        return
+    image_path2 = "images/sample2.jpg"
+    image_path3 = "images/sample2.jpg"
+    
+    images = [image_path, image_path2, image_path3]
+    
+    for img_path in images:
+        if not os.path.exists(img_path):
+            print(f"❌ No se encontró: {img_path}")
+            return
     
     os.makedirs("output", exist_ok=True)
     
@@ -64,19 +70,19 @@ def main():
     
     tasks = [
         {
-            'name': 'Tarea 1: Blur',
+            'name': 'Tarea 1: Brightness',
             'image_path': image_path,
+            'output_path': 'output/redis_Brightness.jpg'
+        },
+        {
+            'name': 'Tarea 2: Blur',
+            'image_path': image_path2,
             'output_path': 'output/redis_blur.jpg'
         },
         {
-            'name': 'Tarea 2: Brightness',
-            'image_path': image_path,
-            'output_path': 'output/redis_bright.jpg'
-        },
-        {
             'name': 'Tarea 3: Combined',
-            'image_path': image_path,
-            'output_path': 'output/redis_combined.jpg'
+            'image_path': image_path3,
+            'output_path': 'output/redis_grayscale.jpg'
         }
     ]
     
@@ -99,8 +105,9 @@ def main():
     print("-" * 70)
     
     pipeline = FilterPipeline([
+        BrightnessFilter(factor=1.8),
         BlurFilter(radius=2),
-        BrightnessFilter(factor=1.3)
+        GrayscaleFilter(),
     ])
     
     print(f"✅ Pipeline: {pipeline}")

@@ -19,12 +19,8 @@ Uso:
 """
 
 from .filter_pipeline import FilterPipeline
-from .filter_factory import FilterFactory
-from .batch_processor import BatchProcessor
 
 __all__ = [
-    'FilterPipeline',
-    'FilterFactory',
-    'BatchProcessor',
+    'FilterPipeline'
 ]
 
