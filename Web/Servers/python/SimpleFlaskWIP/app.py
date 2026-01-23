@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template_string
 import uuid
 #import os
 from pymongo import MongoClient
@@ -74,7 +74,7 @@ def manager_required(f):
     @jwt_required()
     def custom_validation(*args,**kwargs):
         role = get_token_role()
-        if role == 'manager':
+        if role == 'manager' or role == 'admin' :
             return f(*args,**kwargs)
         else:
             print(f"Debug Role: {role}")
@@ -83,94 +83,74 @@ def manager_required(f):
                 'message': 'Solo los manager pueden acceder a este endpoint'
             }, 403
     return custom_validation         
-        
 
-
-@app.route('/')
-def hello():
-    return "<h1> Hola Mundo </h1>"
-
-@app.route('/hello/<string:name>')
-def grettings(name):
-    return "<h1> Hola Mundo "+ name +  "</h1>"
-
-
-#https://www.alkosto.com/fuente
-
-#https://www.alkosto.com/?fuente=google&medio=cpc&campaign=AK_COL_SEM_PEF_CPC_PB_AON_TLP_TLP_Brand-General-AON_PAC&keyword=alkosto&gad_source=1&gad_campaignid=2018735487&gbraid=0AAAAADlnVbhjpa2yNJXbRpygnnsX8VizY&gclid=CjwKCAiAvaLLBhBFEiwAYCNTf7C40kfNPJpky3V0zSRGu-gSyhJjIbLtlSTqw3Q8kPaLJiK2O4N3lBoCGjoQAvD_BwE
-#https://listado.mercadolibre.com.co/laptop#D[A:laptop]&origin=UNKNOWN&as.comp_t=SUG&as.comp_v=lapto&as.comp_id=SUG
-#https://www.amazon.com/s?k=laptop&__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1FUXXWEL7GE7T&sprefix=laptop%2Caps%2C167&ref=nb_sb_noss_1
-
-saludo = {"ES": "Hola Mundo",
-          "EN": "Hello World"}
-
-@app.route('/dynamic-hello/<string:name>/')
-def data(name):
-    language = request.args.get("language", "EN")
-    uppercase = request.args.get("uppercase", False)
-    phase = saludo[language] + " " + name
-    if uppercase == "True" or uppercase == "true":
-        phase = phase.upper()
-    return "<h1>" + phase + "</h1>"
-
-furnitures = { "1": {"name": "Mesa Redonda", "width": 150 , "depth": 150 , "heigh": 150, "price": 110000},
-        "2": {"name": "Mesa Rectangular", "width": 150 , "depth": 60 , "heigh": 120, "price": 120000},
-        "3": {"name": "Silla triangular", "width": 85 , "depth": 65 , "heigh": 130, "price": 60000} }
 
 
 @app.route('/api/furniture/<string:id>/',methods = ["GET", "DELETE"])
 @jwt_required()
 def get_furniture(id):   
     print(f"METHOD {request.method}")
-    if request.method == "GET":
-        if id in furnitures:
-            return furnitures[id], 200
+    global furniture_collection
+    found = furniture_collection.find_one({"_id": ObjectId(id)})
+    found["_id"] = str(found["_id"])
+    if request.method == "GET":        
+        if id is not None:
+            return found, 200
         else:
-            return {"messsage": "forniture with "+id+" not found"}, 404
+            return {"messsage": "furniture with "+id+" not found"}, 404
     else:
-        if id in furnitures:
-            element = furnitures[id]
-            del furnitures[id]
-            return element , 200
+        if id is not None:
+            furniture_collection.delete_one({"_id": ObjectId(id)})
+            return found , 200
         else:
             return {}, 204
+    
+def normalize_id(item):
+    item["_id"] = str(item["_id"])
+    return item    
     
 @app.route('/api/furnitures/')
 @jwt_required()
 def get_furnitures(): 
     width = request.args.get("width",0)
     heigh =  request.args.get("heigh",0)   
-    filtered = list(filter(lambda key : furnitures[key]["width"] >= int(width) 
-                           and furnitures[key]["heigh"] >= int(heigh) , furnitures))
-    return list(map(lambda k: furnitures[k], filtered))
+    query = {"width" : {"$gte": int(width) },
+             "heigh" : {"$gte": int(heigh) }}
+    global furniture_collection    
+    result = list(furniture_collection.find(query))
+    results = list(map(lambda fur: normalize_id(fur), result))
+    return result, 200
+
+def insert_furniture(body):
+    global furniture_collection    
+    result = furniture_collection.insert_one(body)
+    body["_id"] = str(result.inserted_id)
+    return body
 
 @app.route('/api/furniture/', methods = ["POST"])
 @manager_required
-def post_furnitures():
-    body = request.json
-    copy = body.copy()
-    new_id = body["id"]
-    if new_id in furnitures:
-        return {"message": "Fornture with id "+new_id + " already exist" }, 409    
-    else:
-        del body["id"]
-        furnitures[new_id] = body   
-        return copy, 201
-
+def post_furnitures():   
+    return insert_furniture(request.json), 200    
+ 
 @app.route('/api/furniture/<string:id>/', methods=["PATCH"])
 @jwt_required()
 def put_furniture(id):
     body = request.json
     price = body.get("price")
     name = body.get("name")
-    if id in furnitures:
+    found = furniture_collection.find_one({"_id": ObjectId(id)})
+    query = {"$set":{}}
+    if found is not None:
         if price != None:
-            furnitures[id]["price"] = price
+            query["$set"]["price"] = price
         if name != None:
-            furnitures[id]["name"] = name
-        return furnitures[id], 200
+            query["$set"]["name"] = name
+        furniture_collection.update_one({"_id": ObjectId(id)}, query)
+        found = furniture_collection.find_one({"_id": ObjectId(id)})
+        found["_id"] = str(found["_id"])
+        return found , 200
     else:
-        return {"messsage": "forniture with "+id+" not found"}, 404
+        return {"messsage": "furniture with "+id+" not found"}, 404
 
 @app.route('/api/admin/signIn/manager', methods= ['POST'])
 #manager_required
@@ -228,12 +208,12 @@ def log_in():
     else:
         username = request.json['username']
         body_password = request.json['password']
-        if len(get_users_by_username(username) ) == 0:
+        if len(check_if_usr_exist(username) ) == 0:
             return {
             'error': 'Datos inválidos',
             'message': 'el usuario no existe'}, 400
         else:
-            user = get_users_by_username(username)[0]
+            user = check_if_usr_exist(username)[0]
             user_password = user["password_hash"]
             if check_password_hash(user_password, body_password):
                 token = create_access_token(identity=username,additional_claims={
@@ -244,6 +224,77 @@ def log_in():
                         'token': token}, 200
             else:
                  return { 'message': "contraseña incorrecta"}, 401
+   
+        
+
+#https://www.alkosto.com/fuente
+
+#https://www.alkosto.com/?fuente=google&medio=cpc&campaign=AK_COL_SEM_PEF_CPC_PB_AON_TLP_TLP_Brand-General-AON_PAC&keyword=alkosto&gad_source=1&gad_campaignid=2018735487&gbraid=0AAAAADlnVbhjpa2yNJXbRpygnnsX8VizY&gclid=CjwKCAiAvaLLBhBFEiwAYCNTf7C40kfNPJpky3V0zSRGu-gSyhJjIbLtlSTqw3Q8kPaLJiK2O4N3lBoCGjoQAvD_BwE
+#https://listado.mercadolibre.com.co/laptop#D[A:laptop]&origin=UNKNOWN&as.comp_t=SUG&as.comp_v=lapto&as.comp_id=SUG
+#https://www.amazon.com/s?k=laptop&__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1FUXXWEL7GE7T&sprefix=laptop%2Caps%2C167&ref=nb_sb_noss_1
+
+saludo = {"ES": "Hola Mundo",
+          "EN": "Hello World"}
+
+@app.route('/dynamic-home')
+def welcome_page():
+    """Ejemplo sencillo de página HTML con estilos"""
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Bienvenido - Flask App</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                background: linear-gradient(45deg, #ff6b6b, #4ecdc4); 
+                margin: 0; 
+                padding: 50px; 
+                min-height: 100vh; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+            }
+            .card { 
+                background: white; 
+                padding: 30px; 
+                border-radius: 15px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+                text-align: center; 
+                max-width: 400px; 
+            }
+            h1 { 
+                color: #333; 
+                margin-bottom: 10px; 
+            }
+            p { 
+                color: #666; 
+                line-height: 1.6; 
+            }
+            .highlight { 
+                background: #ff6b6b; 
+                color: white; 
+                padding: 5px 10px; 
+                border-radius: 20px; 
+                display: inline-block; 
+                margin: 10px 0; 
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>🎉 ¡Bienvenid@!</h1>
+            <p>Esta es una página HTML con estilos CSS servida desde Flask.</p>
+            <div class="highlight">{{ current_time }}</div>
+            <p>✨ MongoDB está <strong>{{ db_status }}</strong></p>
+        </div>
+    </body>
+    </html>
+    """
+    global furniture_collection
+    return render_template_string(html_content, 
+                                  current_time= datetime.now(), db_status = furniture_collection!=None )
+   
             
 if __name__ == '__main__':
     connect_db()

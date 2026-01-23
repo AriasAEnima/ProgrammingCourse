@@ -1,4 +1,4 @@
-# staticpages/urls.py
+# static_pages/urls.py
 from django.urls import path
 from . import views
 

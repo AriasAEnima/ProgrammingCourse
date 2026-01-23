@@ -1,4 +1,4 @@
-# staticpages/views.py
+# static_pages/views.py
 from django.http import HttpResponse
 
 def home(request):

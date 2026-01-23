@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+   {% for furniture in furnitures %}
+   <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"> {{furniture.name}}</h5>
+                <p class="card-text"> {{furniture.description}}</p>
+                <p> <strong>Precio desde</strong>: ${{furniture.price_starting}}</p>
+                 <p> <strong>Muebles disponibles</strong>: {{furniture.furniture_types}}</p>
+            </div>
+        </div>
+   </div>  
+   {% endfor %}
+</div>
+{% endblock %}
