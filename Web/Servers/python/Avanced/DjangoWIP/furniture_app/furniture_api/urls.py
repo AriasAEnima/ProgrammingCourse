@@ -5,5 +5,5 @@ urlpatterns = [
     path('furnitures/',views.get_furnitures, name="get_furnitures"),
     path('furniture/', views.post_furniture, name="post_furniture"),
     path('furniture/<str:id>/',views.handle_one_furniture, name= "get_furniture"),
-    path('v2/furniture/<str:id>/')
+    path('v2/furniture/<str:id>/', views.v2, name="v2_example")
 ]
