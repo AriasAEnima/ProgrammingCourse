@@ -45,3 +45,10 @@ def handle_one_furniture(request,id):
         return get_furniture(request,id)
     else:
         return delete_furniture(request,id)
+    
+@api_view(["GET"])
+def v2(_,id):
+    furniture =  FurnitureItem.objects.get(id=id)
+    data = furniture.as_dic()
+    data["version"] = "V2"
+    return Response(data, status= 200)
