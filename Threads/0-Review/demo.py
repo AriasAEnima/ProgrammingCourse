@@ -10,38 +10,34 @@ class Operation:
     def operate(self, f, results, message="No estoy en un thread"):
         print("Start",message)
         ans = f(self.elements)
-        print("Finished task", message)
         results.append(ans) 
     
 
 op = Operation([1,2,4,5,6]*100000)
-op2 = Operation([-1,-2,-3,-4]*100000)
+
+def my_custom_fn(l):
+    time.sleep(5)
+    return f"Tarea realizada a {len(l)} elementos ..."
 
 
-def complex_operation(l):
-    ans = 1
-    for e in l:
-        ans = ans* e
-    return ans
+results = []
 
-def wait_operation(_):
-    random_wait = random.randint(3,4)
-    time.sleep(random_wait)
-    return 0
-    
-
-total_start = time.time()
+start_time = time.time()  
 
 threads = []
-# Thread process
-results = []
-for i in range(1,2000):    
-    t = threading.Thread(target= op.operate, args=(wait_operation, results,"Operation"+str(i)) )
-    t.start()
+
+for i in range(0,3000):
+    t= threading.Thread(target=op.operate, args=(my_custom_fn, results))
     threads.append(t)
     
-for thread in threads:
-    thread.join()
-total_time = time.time() - total_start
-print(f"He terminado todas las tareas y he tardado {total_time}")
-print(f"Results :{results}")
+for t in threads:
+    t.start()
+    print("Inicie un thread..")
+    
+for t in threads:
+    t.join()
+    print("Espero un thread..")
+
+print(f"Head resultados .. {len(results[:3])}")
+duration = time.time() - start_time
+print(f"La operacion duró : {duration}")

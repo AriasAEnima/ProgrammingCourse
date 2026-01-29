@@ -66,7 +66,9 @@ def simulate_tasks_with_manual_threads(tasks: List[tuple]) -> List[Dict]:
     
     total_start = time.time()
     
+    # (0, ("task-1", 1segs))
     # Crear y iniciar threads
+    # t = simulate_task("task-1",1segs, 1 )
     for i, (task_name, delay) in enumerate(tasks):
         thread = threading.Thread(
             target=downloader.simulate_task,
