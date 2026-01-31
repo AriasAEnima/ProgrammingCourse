@@ -1,5 +1,4 @@
 """
-⚠️ DEMOSTRACIÓN SIMPLE: ¿Qué ves al imprimir estos objetos?
 
 Este archivo muestra de manera simple qué pasa cuando imprimes:
 - Threads

@@ -32,6 +32,7 @@ def increment_safe(thread_id: int, increments: int):
     
     for i in range(increments):
         # 🔒 CRITICAL SECTION: Solo un thread a la vez
+        # with Lock(): X no queremos copias
         with counter_lock:
             current_value = safe_counter  # Lee valor actual
             

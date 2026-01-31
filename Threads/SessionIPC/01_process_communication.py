@@ -13,7 +13,7 @@ en multiprocessing: Queues, Pipes, Shared Memory, y Locks.
 
 import time
 import multiprocessing as mp
-from multiprocessing import Queue, Pipe, Array, Value, Lock, Event
+from multiprocessing import Lock, Queue, Pipe, Array, Value,Event
 import os
 from typing import List
 

@@ -127,6 +127,13 @@ def simulate_tasks_with_threadpool(tasks: List[tuple], max_workers: int = 3) -> 
         print(f"📋 Enviando {len(tasks)} tareas al ThreadPool...")
         
         # submit() retorna Future objects
+        # Key = Futuro
+        # Val = (task_name, delay)
+        # for t in task :
+        #       futures = 
+        # {<k> executor.submit(...) : <v> (task_name, delay),
+        #  <k> executor.submit(...): <v> (task_name, delay),
+        #  <k>  executor.submit(...): <v> (task_name, delay)}
         future_to_task = {
             executor.submit(simulate_io_task_modern, task_name, delay): (task_name, delay)
             for task_name, delay in tasks
@@ -135,7 +142,9 @@ def simulate_tasks_with_threadpool(tasks: List[tuple], max_workers: int = 3) -> 
         results = []
         
         # Procesar resultados conforme se completen
+        # [<k>, <k> ,<k>]
         for future in concurrent.futures.as_completed(future_to_task):
+            # <v> = dic
             task_name, delay = future_to_task[future]
             try:
                 result = future.result()
