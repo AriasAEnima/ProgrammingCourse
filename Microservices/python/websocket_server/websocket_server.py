@@ -23,6 +23,10 @@ logger = logging.getLogger(__name__)
 # Conjunto de conexiones activas (clientes WebSocket conectados)
 connected_clients: Set[WebSocketServerProtocol] = set()
 
+# X set = [ 2, 2] set = [2] .append(2) => set = [2]
+# dic = {"1": {...}, "2": {---}, X "2": {--}} set["2"]= {...} => override
+# dic.keys() => set()
+
 async def register_client(websocket: WebSocketServerProtocol) -> None:
     """
     Registra un nuevo cliente WebSocket
@@ -115,12 +119,14 @@ async def handle_websocket_connection(websocket: WebSocketServerProtocol) -> Non
         websocket: Conexión WebSocket del cliente
     """
     client_id: str = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
+    # Guardar la referencia de la conexion y enviar un saludo (que puede ser ignorado)
     await register_client(websocket)
     
     try:
         # Escuchar mensajes del cliente
         async for message in websocket:
             try:
+                # Confiamos de que el mensaje es un json
                 data: Dict[str, Any] = json.loads(message)
                 logger.info(f"📥 Mensaje recibido de {client_id}: {data.get('type', 'unknown')}")
                 

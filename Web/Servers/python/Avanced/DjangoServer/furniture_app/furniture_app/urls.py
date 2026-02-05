@@ -1,21 +1,25 @@
 """
 URL configuration for furniture_app project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/6.0/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # 🔐 AUTENTICACIÓN JWT
-    path('api/auth/', include('auth_api.urls')),
-    
-    # 📄 CONTENIDO ESTÁTICO (Sesión 1)
-    path('static-pages/', include('staticpages.urls')),
-    
-    # 🎨 TEMPLATES DINÁMICOS (Sesión 2 y 3)
-    path('dynamic-pages/', include('dynamicpages.urls')),
-    
-    # 🔌 API JSON
-    path('api/', include('furniture_api.urls')),
+    path('static-pages/', include('static_pages.urls')),
+    path('dynamic-pages/', include('dynamic_pages.urls')),
+    path('api/', include('furniture_api.urls'))
 ]
