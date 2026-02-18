@@ -48,6 +48,7 @@ def worker_process(worker_id, queue_config, num_tasks_to_process=None):
     )
     
     # Procesar tareas
+    # Bloquea hasta no encontrar tareas
     worker.start()
     
     return worker.get_stats()

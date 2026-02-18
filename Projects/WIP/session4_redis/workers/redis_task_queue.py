@@ -154,11 +154,11 @@ class RedisTaskQueue:
         # Obtener tarea de pending
         if timeout > 0:
             # Versión bloqueante
-            result = self.redis.brpop(self.pending_key, timeout=timeout)
+            result = self.redis.blpop(self.pending_key, timeout=timeout)
             task_id = result[1] if result else None
         else:
             # Versión no bloqueante
-            task_id = self.redis.rpop(self.pending_key)
+            task_id = self.redis.lpop(self.pending_key)
         
         if not task_id:
             return None
@@ -212,8 +212,10 @@ class RedisTaskQueue:
         # 2. Guardar resultado
         pipe.hset(result_key, mapping=result)
         
-        # 3. Mover a lista de completadas
+        # 3. Borrar de lista de procesando 
         pipe.hdel(self.processing_key, task_id)
+        
+        # 4. Mover a cola de completadas
         pipe.rpush(self.completed_key, task_id)
         
         pipe.execute()
